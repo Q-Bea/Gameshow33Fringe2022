@@ -31,9 +31,7 @@ export default {
     },
 
     mounted() {
-        this.socket = this.$nuxtSocket({withCredentials: true});
-
-        this.socket.on("sceneEvent", payload => {
+        this.$root.socket.on("sceneEvent", payload => {
             switch(payload.eventName) {
                 case "select":
                     this.pick(payload.selected)

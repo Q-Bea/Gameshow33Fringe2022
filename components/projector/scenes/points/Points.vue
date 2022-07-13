@@ -4,15 +4,15 @@
             <v-col>
                 <v-card>
                     <v-card-title style="justify-content: center;">
-                        Team 1
+                        {{teams[0].teamName ?? "Team 1"}}
                     </v-card-title>
                     <v-row style="justify-content: center;">
                         <PointModule
-                            v-for="player in playerData.team1"
+                            v-for="player in teams[0]?.players"
                             :key="player.name"
                             :name="player.name"
                             :points="player.points"
-                            teamName="team1"
+                            :teamIndex="0"
                             class="point-module"
                         ></PointModule>
                     </v-row>
@@ -21,16 +21,16 @@
             <v-col>
                 <v-card>
                     <v-card-title style="justify-content: center;">
-                        Team 2
+                        {{teams[1].teamName ?? "Team 2"}}
                     </v-card-title>
                     <v-row style="justify-content: center;">
                         <PointModule
-                            v-for="player in playerData.team2"
+                            v-for="player in teams[1]?.players"
                             :key="player.name"
                             :name="player.name"
                             :points="player.points"
                             class="point-module"
-                            teamName="team2"
+                            :teamIndex="1"
                         ></PointModule>
                     </v-row>
                 </v-card>
@@ -42,24 +42,10 @@
 <script>
 import PointModule from './PointModule.vue'
 export default {
-    data() {
-        return {
-            playerData: {
-                team1: [],
-                team2: []
-            }
+    computed: {
+        teams() {
+            return this.$store.state.teams.data;
         }
-    },
-    mounted() {
-        const socket = this.$nuxtSocket({withCredentials: true});
-
-        socket.emit("getPlayerData", (data) => {
-            this.playerData = data;
-        })
-
-        socket.on("playersUpdate", (data) => {
-            this.playerData = data;
-        });
     },
     components: { PointModule }
 }

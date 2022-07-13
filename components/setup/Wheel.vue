@@ -9,13 +9,16 @@
         <v-form 
             v-model="valid"
             ref="wheelOptions"
+            :disabled="disabled"
         >
             <v-container fluid>
-                <v-alert 
-                    type="warning" 
-                    outlined
-                    v-if="update"
-                >Data updated from other client</v-alert>
+                <v-slide-y-transition>
+                    <v-alert 
+                        type="warning" 
+                        outlined
+                        v-if="update"
+                    >Data updated from other client</v-alert>
+                </v-slide-y-transition>
                 <v-row style="text-align: center;">
                     <v-col>
                         <v-text-field
@@ -44,6 +47,7 @@
                     @click="updateWheelOptions" 
                     :disabled="!valid || disabled"
                     :color="submitColour"
+                    :loading="loading"
                 >Update</v-btn>
             </v-container>
         </v-form>
@@ -61,11 +65,12 @@ export default {
             wheelOptions: [],
             submitColour: "primary",
             update: false,
-            disabled: false
+            disabled: false,
+            loading: false
         }
     },
 
-    beforeMount() {
+    created() {
         this.$parent.socket.emit("getWheelOptions", (data) => {
             if (data) {
                 this.wheelOptions = data;
@@ -74,33 +79,38 @@ export default {
 
         //Listen for changes incase other client submits
         this.$parent.socket.on("wheelUpdate", (data) => {
-            if (data) {
+            if (data && Array.isArray(data)) {
                 this.wheelOptions = data;
 
-                //Make sure updating on this client doesn't trigger the alert
-                if (this.submitColour === "primary") {
+                if (this.loading) {
+                    this.loading = false;
+                    this.submitColour = "success";
+
+                    setTimeout(() => {
+                        this.submitColour = "primary"
+                    }, 2000)
+                }
+                else if (this.submitColour === "primary") {
+                    //Make sure updating on this client doesn't trigger the alert
                     this.update = true;
                     this.disabled = true;
+                    this.loading = true;
 
                     setTimeout(() => {
                         this.update = false;
                         this.disabled = false;
-                    }, 5000)
+                        this.loading = false;
+                    }, 4000)
                 }
-
             }
         });
     },
 
     methods: {
         updateWheelOptions() {
+            this.loading = true;
+
             this.$parent.socket.emit("setWheelOptions", this.wheelOptions);
-
-            this.submitColour = "success";
-
-            setTimeout(() => {
-                this.submitColour = "primary"
-            }, 2000)
         }
     }
 }

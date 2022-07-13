@@ -1,22 +1,29 @@
 <template>
-    <div class="score-container">
-        <v-dialog
-            v-model="dialog"
-            width="max-content"
+    <v-container fluid
+        style="position: fixed; bottom: 3rem;"
+    >
+        <v-row
+            justify="center"
+            style="width: 100%;"
         >
-            <template v-slot:activator="{on, attr}">
-                <v-btn
-                    color="primary"
-                    v-bind="attr"
-                    v-on="on"
-                >Points</v-btn>
-            </template>
+            <v-dialog
+                v-model="dialog"
+                width="max-content"
+            >
+                <template v-slot:activator="{on, attr}">
+                    <v-btn
+                        color="primary"
+                        v-bind="attr"
+                        v-on="on"
+                    >Points</v-btn>
+                </template>
 
-            <v-card>
-                <PointsPopup/>
-            </v-card>
-        </v-dialog>
-    </div>
+                <v-card>
+                    <PointsPopup/>
+                </v-card>
+            </v-dialog>
+        </v-row>
+    </v-container>
 </template>
 
 <script>

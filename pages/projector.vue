@@ -1,53 +1,54 @@
 <template>
     <v-container fluid class="fill-height">
-        <Transition mode="out-in">
-            <component v-bind:is="currentScene"/>
-        </Transition>
+        <v-slide-y-transition mode="out-in">
+            <component v-bind:is="currentDisplay"/>
+        </v-slide-y-transition>
     </v-container>
 </template>
 
 <script>
-import Base from "~~/components/projector/Base.vue"
+import Base from "@/components/projector/Base.vue"
 import Points from "@/components/projector/scenes/points/Points.vue"
 import Wheel from "@/components/projector/scenes/wheel/Wheel.vue"
+import Blank from "@/components/projector/Blank.vue"
 
-const VALID_SCENES = ["Base", "Points", "Wheel"];
+const KNOWN_SCENES = ["Base", "Points", "Wheel", "Blank"];
 
 export default {
     data() {
         return {
-            currentScene: "Base",
+            currentDisplay: "Base",
         }
     },
     mounted() {
         //Socket vuex bindings
-        this.socket = this.$nuxtSocket({withCredentials: true})
+        this.$root.socket = this.$nuxtSocket({withCredentials: true})
 
-        this.socket.emit("getPlayerData", (data) => {
-            this.$store.commit("players/setData", data);
+        this.$root.socket.emit("getTeamsData", (data) => {
+            this.$store.commit("teams/setData", data);
         })
 
-        this.socket.emit("getWheelOptions", (data) => {
-            this.$store.commit("wheel/setOptions", data);
-        })
-
-        this.socket.on("playersUpdate", (data) => {
-            this.$store.commit("players/setData", data);
+        this.$root.socket.on("teamsUpdate", (data) => {
+            this.$store.commit("teams/setData", data);
         });
 
-        this.socket.on("wheelUpdate", (data) => {
+        this.$root.socket.emit("getWheelOptions", (data) => {
             this.$store.commit("wheel/setOptions", data);
         })
 
-        this.socket.emit("getCurrentScene", data => {
-            if (VALID_SCENES.includes(data)) {
-                this.currentScene = data;
+        this.$root.socket.on("wheelUpdate", (data) => {
+            this.$store.commit("wheel/setOptions", data);
+        })
+
+        this.$root.socket.emit("getActiveDisplays", data => {
+            if (KNOWN_SCENES.includes(data.current)) {
+                this.currentDisplay = data.current;
             }
         })
 
-        this.socket.on("changeScene", data => {
-            if (VALID_SCENES.includes(data)) {
-                this.currentScene = data;
+        this.$root.socket.on("activeDisplaysUpdate", data => {
+            if (KNOWN_SCENES.includes(data.current)) {
+                this.currentDisplay = data.current;
             }
         })
 
@@ -62,19 +63,6 @@ export default {
             el.msRequestFullscreen().catch(() => {/* */});
         }
     },
-    components: { Base, Points, Wheel }
+    components: { Base, Points, Wheel, Blank }
 }
 </script>
-
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-
-</style>

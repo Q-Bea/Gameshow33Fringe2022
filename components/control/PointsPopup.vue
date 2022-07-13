@@ -3,27 +3,29 @@
         <v-row>
             <!-- Team1 -->
             <v-col style="padding-right: 30px">
-                <h2 class="team-header">Team 1</h2>
+                <h2 class="team-header">{{teams[0]?.teamName ?? "Team 1"}}</h2>
                 <v-row justify="center">
                     <PointModule 
-                        v-for="player in playerData.team1" 
+                        v-for="(player, index) in teams[0]?.players" 
                         :key="player.name" 
                         :name="player.name"
                         :points="player.points"
-                        teamName="team1"/>
+                        :teamIndex="0"
+                        :playerIndex="index"/>
                 </v-row>
             </v-col>
 
             <!-- Team2 -->
             <v-col style="padding-left: 30px">
-                <h2 class="team-header">Team 2</h2>
+                <h2 class="team-header">{{teams[1]?.teamName ?? "Team 2"}}</h2>
                 <v-row justify="center">
                     <PointModule 
-                        v-for="player in playerData.team2" 
+                        v-for="(player, index) in teams[1]?.players" 
                         :key="player.name" 
                         :name="player.name"
                         :points="player.points"
-                        teamName="team2"/>
+                        :teamIndex="1"
+                        :playerIndex="index"/>
                 </v-row>
             </v-col>
         </v-row>
@@ -42,34 +44,23 @@ import PointModule from './PointModule.vue'
 export default {
     data: () => {
         return {
-            playerData: {
-                team1: [],
-                team2: []
-            }
+            teams: []
         };
     },
     beforeMount() {
-        this.socket = this.$nuxtSocket({withCredentials: true});
-
-        this.socket.emit("getPlayerData", (data) => {
-            if (data.team1) {
-                this.playerData.team1 = data.team1;
-            }
-
-            if (data.team2) {
-                this.playerData.team2 = data.team2;
-            }
+        this.$root.socket.emit("getTeamsData", (data) => {
+            this.teams = data;
         })
 
-        this.socket.on("playersUpdate", (data) => {
-            this.playerData = data;
+        this.$root.socket.on("teamsUpdate", (data) => {
+            this.teams = data;
         });
     },
     methods: {
-        pointsModify(player, team, points) {
-            this.socket.emit("addPoints", {
-                playerName: player,
-                teamName: team,
+        pointsModify(playerIndex, teamIndex, points) {
+            this.$root.socket.emit("addPlayerPoints", {
+                playerIndex: playerIndex,
+                teamIndex: teamIndex,
                 points: points
             })
         }

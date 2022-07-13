@@ -9,36 +9,56 @@
         <v-form 
             v-model="valid"
             ref="playerNames"
+            :disabled="disabled"
         >
             <v-container fluid>
-                <v-alert 
-                    type="warning" 
-                    outlined
-                    v-if="update"
-                >Data updated from other client</v-alert>
+                <v-slide-y-transition>
+                    <v-alert 
+                        type="warning" 
+                        outlined
+                        v-if="update"
+                    >Data updated from other client</v-alert>
+                </v-slide-y-transition>
                 <v-row style="text-align: center;">
-                    <v-col>
-                        <h2>Team 1</h2>
+                    <v-col
+                        style="border-right: solid 1px lightgray;"
+                    >
+                        <v-text-field
+                            label="Team 1 Name"
+                            outlined
+                            required
+                            :rules="playerNameRules"
+                            v-model="teams[0].teamName"
+                        >
+
+                        </v-text-field>
                         <v-text-field
                             v-for="index in 3"
                             :key="index"
                             :label="'Player ' + index"
                             required
                             :rules="playerNameRules"
-                            v-model="players.team1[index - 1]"
+                            v-model="teams[0].players[index - 1]"
                         >
                         </v-text-field>
                     </v-col>
                     <v-col>
-                        <h2>Team 2</h2>
+                        <v-text-field
+                            label="Team 2 Name"
+                            outlined
+                            required
+                            :rules="playerNameRules"
+                            v-model="teams[1].teamName"
+                        >
 
+                        </v-text-field>
                         <v-text-field
                             v-for="index in 3"
                             :key="index"
                             :label="'Player ' + index"
                             required
                             :rules="playerNameRules"
-                            v-model="players.team2[index - 1]"
+                            v-model="teams[1].players[index - 1]"
                         >
                         </v-text-field>
                     </v-col>
@@ -46,13 +66,24 @@
                 <v-checkbox 
                     label="Reset Scores" 
                     required
-                    v-model="players.resetScore"
+                    v-model="resetScore"
                 ></v-checkbox>
+                <v-slide-y-transition>
+                    <p class="text-center" v-if="defaultPrompt">Defaults filled | Click 'Update' to save!</p>
+                </v-slide-y-transition>
                 <v-btn 
-                    @click="updatePlayerNames" 
+                    @click="updateTeams" 
                     :disabled="!valid || disabled"
-                    :color="players.colour"
+                    :color="colour"
+                    :loading="loading"
                 >Update</v-btn>
+
+                <v-btn
+                    @click="fillDefaults"
+                    :disabled="disabled"
+                    color="secondary"
+                >Fill Defaults
+                </v-btn>
             </v-container>
         </v-form>
     </v-card>
@@ -66,62 +97,104 @@ export default {
             playerNameRules: [
                 v => !!v || "Name is required!"
             ],
-            players: {
-                team1: [],
-                team2: [],
-                resetScore: true,
-                colour: "primary"
-            },
+            teams: [
+                {
+                    teamName: "Team 1",
+                    players: []
+                },
+                {
+                    teamName: "Team 2",
+                    players: []
+                }
+            ],
+            resetScore: true,
+            colour: "primary",
             update: false,
-            disabled: false
+            disabled: false,
+            loading: false,
+            defaultPrompt: false
         }
     },
 
-    beforeMount() {
-        this.$parent.socket.emit("getPlayerData", (data) => {
-            if (data.team1) {
-                this.players.team1 = data.team1.map(player => player.name);
-            }
-            if (data.team2) {
-                this.players.team2 = data.team2.map(player => player.name);
+    created() {
+        this.$parent.socket.emit("getTeamsData", (data) => {
+            if (data && Array.isArray(data)) {
+                if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
+                if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
+                
+                if (data[1]?.teamName) this.teams[1].teamName = data[1].teamName;
+                if (data[1]?.players) this.teams[1].players = data[1].players.map(player => player.name);
             }
         });
 
         //Listen for changes incase other client submits
-        this.$parent.socket.on("playersUpdate", (data) => {
-            let changed = false;
-            if (data.team1) {
-                changed = true;
-                this.players.team1 = data.team1.map(player => player.name);
+        this.$parent.socket.on("teamsUpdate", (data) => {
+            if (data && Array.isArray(data)) {
+                if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
+                if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
+                
+                if (data[1]?.teamName) this.teams[1].teamName = data[1].teamName;
+                if (data[1]?.players) this.teams[1].players = data[1].players.map(player => player.name);
+
+                if (this.loading) {
+                    this.loading = false;
+                    this.colour = "success";
+
+                    setTimeout(() => {
+                        this.colour = "primary"
+                    }, 2000)
+
+                } else if (this.colour === "primary") {
+                    this.update = true;
+                    this.disabled = true;
+                    this.loading = true;
+
+                    setTimeout(() => {
+                        this.update = false;
+                        this.disabled = false;
+                        this.loading = false;
+                    }, 4000)
+                }
             }
 
-            if (data.team2) {
-                changed = true;
-                this.players.team2 = data.team2.map(player => player.name);
-            }
-
-            if (changed && this.players.colour === "primary") {
-                this.update = true;
-                this.disabled = true;
-
-                setTimeout(() => {
-                    this.update = false;
-                    this.disabled = false;
-                }, 5000)
-            }
         });
     },
 
     methods: {
-        updatePlayerNames() {
-            // this.socket.emit("setPlayerNames", {team1: this.players.team1, team2: this.players.team2}, this.players.resetScore)  
-            this.$parent.socket.emit("setPlayerNames", {team1: this.players.team1, team2: this.players.team2, reset: this.players.resetScore});
+        updateTeams() {
+            this.loading = true;
 
-            this.players.colour = "success";
+            this.$parent.socket.emit("setTeams", {
+                teams: this.teams,
+                resetScores: this.resetScore
+            });
+        },
+
+        fillDefaults() {
+            this.teams = [
+                {
+                    teamName: "Team 1",
+                    players: [
+                        "Guest 1",
+                        "Guest 2",
+                        "Owen"
+                    ]
+                },
+                {
+                    teamName: "Team 2",
+                    players: [
+                        "Guest 4",
+                        "Guest 5",
+                        "Rob"
+                    ]
+                }
+            ]
+
+            this.defaultPrompt = true;
 
             setTimeout(() => {
-                this.players.colour = "primary"
-            }, 2000)
+                this.defaultPrompt = false;
+            }, 5000)
         }
     }
 }

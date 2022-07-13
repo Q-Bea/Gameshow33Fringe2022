@@ -6,8 +6,8 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - gameshow33-finge2022',
-    title: 'gameshow33-finge2022',
+    titleTemplate: '%s - Gameshow 33 - Fringe 2022',
+    title: 'Gameshow 33 Fringe 2022',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -49,6 +49,12 @@ export default {
   ],
 
   io: {
+    server: {
+      cors: {
+        credentials: true,
+        origin: ["http://localhost:3000"]
+      }
+    },
     sockets: [{
       name: "main",
       url: "http://localhost:3000"
