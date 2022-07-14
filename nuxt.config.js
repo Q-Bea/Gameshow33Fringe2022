@@ -1,5 +1,3 @@
-import colors from 'vuetify/es5/util/colors'
-
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: true,
@@ -52,12 +50,12 @@ export default {
     server: {
       cors: {
         credentials: true,
-        origin: ["http://localhost:3000"]
+        origin: ["http://localhost:3000", "https://gameshow33.beamacdonald.ca"]
       }
     },
     sockets: [{
       name: "main",
-      url: "http://localhost:3000"
+      url: process.env.NODE_ENV === "production" ? "https://gameshow33.beamacdonald.ca" : "http://localhost:3000"
     }]
   },
 
