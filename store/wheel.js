@@ -1,5 +1,5 @@
 export const state = () => ({
-    options: {},
+    options: []
 })
 
 export const mutations = {

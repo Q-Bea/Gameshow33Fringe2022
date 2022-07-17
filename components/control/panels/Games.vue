@@ -52,7 +52,7 @@ export default {
     methods: {
         getColour(name) {
             if (name === this.current) {
-                return "primary";
+                return "primary lighten-1";
             }
 
             if (name === this.pending) {

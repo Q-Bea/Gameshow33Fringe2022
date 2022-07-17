@@ -53,6 +53,7 @@
                     <v-row>
                         <v-card style="width: 100%;">
                             <v-card-title>Display Hotkeys</v-card-title>
+                            <Hotkeys/>
                         </v-card>
                     </v-row>
                 </v-col>
@@ -69,6 +70,7 @@ import ScoreContainer from '@/components/control/ScoreContainer.vue'
 import Status from '~/components/control/panels/Status.vue'
 import Scenes from '~/components/control/panels/Scenes.vue'
 import Games from '~/components/control/panels/Games.vue'
+import Hotkeys from '~/components/control/panels/Hotkeys.vue'
 export default {
     middleware: 'auth',
     head: {
@@ -128,6 +130,6 @@ export default {
         }
     },
 
-    components: { ScoreContainer, Status, Scenes, Games }
+    components: { ScoreContainer, Status, Scenes, Games, Hotkeys }
 }
 </script>

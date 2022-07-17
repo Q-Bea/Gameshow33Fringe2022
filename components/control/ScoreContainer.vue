@@ -1,6 +1,6 @@
 <template>
     <v-container fluid
-        style="position: fixed; bottom: 3rem;"
+        style="position: fixed; bottom: 3rem; pointer-events: none;"
     >
         <v-row
             justify="center"
@@ -12,9 +12,11 @@
             >
                 <template v-slot:activator="{on, attr}">
                     <v-btn
-                        color="primary"
+                        color="purple darken-2"
                         v-bind="attr"
                         v-on="on"
+                        dark
+                        style="pointer-events: auto;"
                     >Points</v-btn>
                 </template>
 
@@ -37,13 +39,3 @@ export default {
     components: { PointsPopup }
 }
 </script>
-
-<style>
-.score-container {
-    display: flex;
-    bottom: 4rem;
-    position: fixed;
-    width: 100%;
-    justify-content: center;
-}
-</style>

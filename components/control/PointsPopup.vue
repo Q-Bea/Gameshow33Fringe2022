@@ -21,7 +21,7 @@
                 <v-row justify="center">
                     <PointModule 
                         v-for="(player, index) in teams[1]?.players" 
-                        :key="player.name" 
+                        :key="player.name + index" 
                         :name="player.name"
                         :points="player.points"
                         :teamIndex="1"
@@ -47,7 +47,7 @@ export default {
             teams: []
         };
     },
-    beforeMount() {
+    created() {
         this.$root.socket.emit("getTeamsData", (data) => {
             this.teams = data;
         })
