@@ -4,16 +4,22 @@
         height="150"
         width="150"
         @click="click"
-        :color="active"
+        :color="toggleOn ? 'green darken-1' : 'red darken-1'"
+        style="transition: background-color 0.2s;"
     >
         <p class="display-name">{{label}}</p>
-
     </v-card>
 </template>
 
 <script>
 export default {
-    props: ["colour", "label", "dataKey"],
+    props: ["label", "dataKey"],
+
+    data() {
+        return {
+            toggleOn: false
+        }
+    },  
     
     methods: {
         click() {
@@ -21,7 +27,19 @@ export default {
                 key: this.dataKey,
                 type: "push"
             })
+
+            this.toggleOn = !this.toggleOn
         }
     }
 }
 </script>
+
+<style scoped>
+.display-name {
+    pointer-events: none;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+</style>

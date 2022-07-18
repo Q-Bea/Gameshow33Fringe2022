@@ -19,11 +19,14 @@ export default {
 <style scoped>
 .player-info {
     text-align: center;
-    overflow: scroll;
+    overflow: auto;
+    overflow-y: hidden;
 }
 
 .player-name {
-    overflow: scroll;
+    overflow: auto;
+    white-space: nowrap;
+    overflow-y: hidden
 }
 
 .point-module {

@@ -1,19 +1,38 @@
 <template>
     <v-container fluid>
-        <v-slide-x-transition>
+        <v-container style="width: max-content;">
+            <v-card>
+                <Status/>
+            </v-card>
+        </v-container>
+
+        <br/>
+
+        <v-slide-x-transition mode="out-in">
             <component 
-                :is="KNOWN_SCENES.includes(currentScene) ? currentScene : 'Base'"
+                v-if="KNOWN_SCENES.includes(currentScene)"
+                :is="currentScene"
             />
+
+            <v-alert
+                v-else
+                color="blue darken-2"
+                outlined
+                class="text-center"
+            >
+            No Hotkeys for this scene
+            </v-alert>
         </v-slide-x-transition>
     </v-container>
 </template>
 
 <script>
 import Wheel from "./hotkeys/Wheel.vue"
-import ButtonEmitter from "./hotkeys/generic/ButtonEmitter.vue"
+import StandOnTime from "./hotkeys/StandOnTime.vue"
+import Status from "./Status.vue"
 
 export default {
-    components: { Wheel, ButtonEmitter },
+    components: { Wheel, StandOnTime, Status },
     computed: {
         currentScene() {
             return this.$store.state.display.current
@@ -22,7 +41,7 @@ export default {
 
     data() {
         return {
-            KNOWN_SCENES: ["Wheel"]
+            KNOWN_SCENES: ["Wheel", "StandOnTime"]
         }
     },
 
