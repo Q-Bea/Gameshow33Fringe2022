@@ -1,16 +1,16 @@
 <template>
     <v-container fluid>
-        <v-slide-y-transition>
-            <v-alert
-                icon="mdi-connection"
-                color="red lighten-1"
-                v-if="connected === false"
-                width="100%"
-                style="position: fixed; z-index: 1001; left: 0; bottom:50%"
-            >Websocket Disconnected! If this message persists, please refresh your browser</v-alert>
-        </v-slide-y-transition>
+        <WebsocketDisconnect/>
+
+
+        <br/>
 
         <h1 class="text-center">Hotkeys</h1>
+        <v-container style="width: max-content;">
+            <v-card>
+                <Status/>
+            </v-card>
+        </v-container>
 
         <Hotkeys/>
 
@@ -19,7 +19,9 @@
 </template>
 <script>
 import Hotkeys from "../components/control/panels/Hotkeys.vue";
+import Status from "~/components/control/panels/Status.vue"
 import ScoreContainer from "~/components/control/ScoreContainer.vue";
+import WebsocketDisconnect from "~/components/control/WebsocketDisconnect.vue";
 export default {
     middleware: "auth",
     computed: {
@@ -27,32 +29,27 @@ export default {
             return this.$store.state.display.current;
         }
     },
-    data() {
-        return {
-            connected: undefined
-        };
-    },
-    created() {
+
+    async created() {
         this.$root.socket = this.$nuxtSocket({
             withCredentials: true
         });
+
+        try {
+            const displays = await this.$root.socket.emitP("getActiveDisplays");
+            if (displays !== undefined) {
+                this.$store.commit("display/set", displays);
+            }
+        } catch(e) {
+            //
+        }
         
-        this.$root.socket.emit("getActiveDisplays", display => {
-            this.$store.commit("display/set", display);
-        });
-
         this.$root.socket.on("activeDisplaysUpdate", display => {
-            this.$store.commit("display/set", display);
-        });
-
-        this.$root.socket.on("connect", () => {
-            this.connected = true;
-        });
-
-        this.$root.socket.io.engine.on("close", () => {
-            this.connected = false;
+            if (display !== undefined) {
+                this.$store.commit("display/set", display);
+            }
         });
     },
-    components: { Hotkeys, ScoreContainer }
+    components: { Status, Hotkeys, ScoreContainer, WebsocketDisconnect }
 }
 </script>

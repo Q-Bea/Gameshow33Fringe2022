@@ -4,7 +4,7 @@
         max-width="50vw"
     >
         <v-card-title>
-            Player Names
+            Team and Player Names
         </v-card-title>
         <v-form 
             v-model="valid"
@@ -76,6 +76,7 @@
                     :disabled="!valid || disabled"
                     :color="colour"
                     :loading="loading"
+                    style="transition: background-color 0.2s;"
                 >Update</v-btn>
 
                 <v-btn
@@ -116,20 +117,23 @@ export default {
         }
     },
 
-    created() {
-        this.$parent.socket.emit("getTeamsData", (data) => {
-            if (data && Array.isArray(data)) {
+    async created() {
+        try {
+            const data = await this.$root.socket.emitP("getTeamsData");
+            if (Array.isArray(data)) {
                 if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
                 if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
                 
                 if (data[1]?.teamName) this.teams[1].teamName = data[1].teamName;
                 if (data[1]?.players) this.teams[1].players = data[1].players.map(player => player.name);
             }
-        });
+        } catch(e) {
+            //
+        }
 
         //Listen for changes incase other client submits
-        this.$parent.socket.on("teamsUpdate", (data) => {
-            if (data && Array.isArray(data)) {
+        this.$root.socket.on("teamsUpdate", (data) => {
+            if (Array.isArray(data)) {
                 if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
                 if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
                 
@@ -138,6 +142,7 @@ export default {
 
                 if (this.loading) {
                     this.loading = false;
+                    this.disabled = false;
                     this.colour = "success";
 
                     setTimeout(() => {
@@ -147,24 +152,22 @@ export default {
                 } else if (this.colour === "primary") {
                     this.update = true;
                     this.disabled = true;
-                    this.loading = true;
 
                     setTimeout(() => {
                         this.update = false;
                         this.disabled = false;
-                        this.loading = false;
                     }, 4000)
                 }
             }
-
         });
     },
 
     methods: {
         updateTeams() {
             this.loading = true;
+            this.disabled = true;
 
-            this.$parent.socket.emit("setTeams", {
+            this.$root.socket.emit("setTeams", {
                 teams: this.teams,
                 resetScores: this.resetScore
             });

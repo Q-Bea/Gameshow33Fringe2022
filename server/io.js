@@ -60,17 +60,8 @@ function authenticate(socket) {
 }
 
 export default function Svc(socket, io) {
-    return {
-        //----SCENE DATA SOCKET----
-        async currentDisplayEvent(payload) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return
-            };
-
-            io.emit("currentDisplayEvent", payload);
-        },
-
+    return Object.freeze({
+        //----DISPLAY DATA SOCKET----
         async setActiveDisplays(payload) {
             if (!authenticate(socket)) {
                 socket.disconnect(true);
@@ -84,78 +75,56 @@ export default function Svc(socket, io) {
                 pending: payload.pending
             });
 
-            if (res) {
-                io.emit("activeDisplaysUpdate", res)
-            }
+            io.emit("activeDisplaysUpdate", res)
         },
 
-        async getActiveDisplays(cb) {
+        async getActiveDisplays() {
             try {
-                if (cb) {
-                    const res = await db.displayDataFunctions.getActiveDisplays();
+                const res = await db.displayDataFunctions.getActiveDisplays();
                         
-                    if (res) {
-                        cb(res);
-                    }
-                }            
+                return res;
             } catch(e) {
-                //
+                return;
             }
         },
 
-        async getAllKnownDisplays(cb) {
+        async getAllKnownDisplays() {
             try {
-                if (cb) {
-                    const res = await db.displayDataFunctions.getAllKnownDisplays();
+                const res = await db.displayDataFunctions.getAllKnownDisplays();
 
-                    if (res) {
-                        cb(res);
-                    }
-                }
+                return res;
             } catch(e) {
-                //
+                return;
             }
         },
 
-        async getValidScenes(cb) {
+        async getValidScenes() {
             try {
-                if (cb) {
-                    const res = await db.displayDataFunctions.getValidScenes();
-
-                    if (res) {
-                        cb(res);
-                    }
-                }            
+                const res = await db.displayDataFunctions.getValidScenes();
+                
+                return res;
             } catch(e) {
-                //
+                return;
             }
         },
 
-        async getValidGames(cb) {
+        async getValidGames() {
             try {
-                if (cb) {
-                    const res = await db.displayDataFunctions.getValidGames();
+                const res = await db.displayDataFunctions.getValidGames();
 
-                    if (res) {
-                        cb(res);
-                    }
-                }
+                return res;
             } catch(e) {
-                //
+                return
             }
         },
 
-        async getGamesInUse(cb) {
+        async getGamesInUse() {
             try {
-                if (cb) {
-                    const res = await db.displayDataFunctions.getGamesInUse();
-
-                    if (res) {
-                        cb(res);
-                    }
-                }
+                const res = await db.displayDataFunctions.getGamesInUse();
+                
+                return res;
             } catch(e) {
-                //
+                return;
             }
         },
 
@@ -168,10 +137,7 @@ export default function Svc(socket, io) {
             if (Array.isArray(games)) {
                 const res = await db.displayDataFunctions.setGamesInUse(games);
 
-                if (res) {
-                    io.emit("gamesInUseUpdate", res);
-                }
-
+                io.emit("gamesInUseUpdate", res);
             }
         },
         //----End SCENE DATA----
@@ -200,9 +166,7 @@ export default function Svc(socket, io) {
             if (Array.isArray(payload.teams)) {
                 const res = await db.teamDataFunctions.setTeams(payload.teams, payload.resetScores);
 
-                if (res) {
-                    io.emit("teamsUpdate", res)
-                }
+                io.emit("teamsUpdate", res)
             }
         },
 
@@ -214,9 +178,7 @@ export default function Svc(socket, io) {
 
             const res = await db.teamDataFunctions.reset(true);
 
-            if (res) {
-                io.emit("teamsUpdate", res)
-            }
+            io.emit("teamsUpdate", res)
         },
 
         async addPlayerPoints(payload) {
@@ -237,21 +199,17 @@ export default function Svc(socket, io) {
                     payload.points
                 )
 
-                if (res) {
-                    io.emit("teamsUpdate", res)
-                }
+                io.emit("teamsUpdate", res)
             }
         },
 
-        async getTeamsData(cb) {
+        async getTeamsData() {
             try {
-                if (cb) {
-                    const res = await db.teamDataFunctions.getTeamData();
-
-                    if (res) cb(res);
-                }
+                const res = await db.teamDataFunctions.getTeamData();
+                
+                return res;
             } catch(e) {
-                //
+                return;
             }
         },
         //----END PLAYER SOCKETS----
@@ -261,28 +219,81 @@ export default function Svc(socket, io) {
             if (!authenticate(socket)) {
                 socket.disconnect(true);
                 return;
-            };
+            }
 
             if (Array.isArray(options)) {
                 const res = await db.wheelDataFunctions.setWheelOptions(options);
 
-                if (res) {
-                    io.emit("wheelUpdate", res)
-                }
+                io.emit("wheelUpdate", res)
             }
         },
 
-        async getWheelOptions(cb) {
+        async getWheelOptions() {
             try {
-                if (cb) {
-                    const res = await db.wheelDataFunctions.getWheelOptions();
+                const res = await db.wheelDataFunctions.getWheelOptions();
+                
+                return res;
+            } catch(e) {
+                return;
+            }
+        },
+        //----END WHEEL SOCKETS----
 
-                    if (res) cb(res);
+        //----DISPLAY EVENT SOCKETS----
+
+        /*
+        These endpoints behave slightly differently
+        than the others. By self-defined convention,
+        if a single key of a larger data structure is update,
+        a signal is emitted containing the entirety of the structure,
+        instead of just the changed part.
+        
+        As this behaviour is more complex to implement here, as not all
+        display events will save data to mongo, data emissions here will only contain
+        updated data directly provided by the emitter.
+        */
+        async displayEvent(payload) {
+            try {
+                if (!authenticate(socket)) {
+                    socket.disconnect(true);
+                    return
+                };
+    
+                if (typeof payload === "object") {
+                    if (payload.name === undefined) return;
+                    //A name is required for all emissions, so that
+                    //type can be filtered
+    
+                    if (payload.save) {
+                        db.displayEventFunctions.setKeyVal(
+                            payload.writeToDisplay,
+                            payload.key,
+                            payload.val
+                        )
+                    }
+                    io.emit("displayEvent", payload);
                 }
+
+                throw Error();
             } catch(e) {
                 //
             }
-        }
-        //----END WHEEL SOCKETS----
-    }
+        },
+
+        async getSavedDisplayEventData(displayName) {
+            try {
+                if (typeof displayName === "string") {
+                    const res = await db.displayEventFunctions.getData(displayName);
+                    
+                    return res;
+                }
+                
+                throw Error()
+            } catch(e) {
+                return;
+            }
+        },
+
+        //----END DISPLAY EVENT SOCKETS----
+    })
 }

@@ -1,14 +1,7 @@
 <template>
     <v-container fluid>
-        <v-slide-y-transition>
-            <v-alert
-                icon="mdi-connection"
-                color="red lighten-1"
-                v-if="connected === false"
-                width="100%"
-                style="position: fixed; z-index: 1001; left: 0; bottom:50%"
-            >Websocket Disconnected! If this message persists, please refresh your browser</v-alert>
-        </v-slide-y-transition>
+        <WebsocketDisconnect/>
+
         <v-container fluid>
             <v-row>
                 <v-col>
@@ -52,13 +45,24 @@
 
                     <v-row>
                         <v-card style="width: 100%;">
-                            <v-card-title>Display Hotkeys</v-card-title>
-                            <Hotkeys/>
+                            <v-card-title>
+                                Display Hotkeys
+                                <v-btn
+                                    @click="hideHotkeys = !hideHotkeys"
+                                    right
+                                    absolute
+                                    plain
+                                >
+                                    {{hideHotkeys ? "Show": "Hide"}}
+                                </v-btn>
+                            </v-card-title>
+                            <Hotkeys
+                                v-if="!hideHotkeys"
+                            />
                         </v-card>
                     </v-row>
                 </v-col>
             </v-row>
-
         </v-container>
 
         <ScoreContainer/>
@@ -71,6 +75,7 @@ import Status from '~/components/control/panels/Status.vue'
 import Scenes from '~/components/control/panels/Scenes.vue'
 import Games from '~/components/control/panels/Games.vue'
 import Hotkeys from '~/components/control/panels/Hotkeys.vue'
+import WebsocketDisconnect from '~/components/control/WebsocketDisconnect.vue'
 export default {
     middleware: 'auth',
     head: {
@@ -87,36 +92,41 @@ export default {
     data() {
         return {
             dialog: false,
-            connected: undefined
+            connected: undefined,
+            hideHotkeys: false
         }
     },
-    created() {
+    async created() {
         this.$root.socket = this.$nuxtSocket({
             withCredentials: true
         })
 
-        this.$root.socket.emit("getActiveDisplays", display => {
-            this.$store.commit("display/set", display)
-        })
+        try {
+            const displays = await this.$root.socket.emitP("getActiveDisplays");
+            if (displays !== undefined) {
+                this.$store.commit("display/set", displays)
+            }
+        } catch (e) {
+            //
+        }
+
+        try {
+            const games = await this.$root.socket.emitP("getGamesInUse");
+            if (Array.isArray(games)) {
+                this.$store.commit("games/set", games);
+            }
+        } catch(e) {
+            //
+        }
 
         this.$root.socket.on("activeDisplaysUpdate", display => {
-            this.$store.commit("display/set", display)
-        })
-
-        this.$root.socket.emit("getGamesInUse", data => {
-            this.$store.commit("games/set", data);
+            if (display !== undefined) {
+                this.$store.commit("display/set", display)
+            }
         })
 
         this.$root.socket.on("gamesInUseUpdate", data => {
             this.$store.commit("games/set", data);
-        })
-
-        this.$root.socket.on("connect", () => {
-            this.connected = true;
-        })
-
-        this.$root.socket.io.engine.on("close", () => {
-            this.connected = false;
         })
     },
     methods: {
@@ -130,6 +140,6 @@ export default {
         }
     },
 
-    components: { ScoreContainer, Status, Scenes, Games, Hotkeys }
+    components: { ScoreContainer, Status, Scenes, Games, Hotkeys, WebsocketDisconnect }
 }
 </script>

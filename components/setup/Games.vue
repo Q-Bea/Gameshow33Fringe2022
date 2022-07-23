@@ -41,6 +41,7 @@
                     :disabled="!valid || disabled"
                     :color="colour"
                     :loading="loading"
+                    style="transition: background-color 0.2s;"
                 >Update</v-btn>
             </v-container>
         </v-form>
@@ -64,27 +65,32 @@ export default {
         }
     },
 
-    created() {
-        this.$parent.socket.emit("getValidGames", games => {
+    async created() {
+        try {
+            const games = await this.$root.socket.emitP("getValidGames");
             if (Array.isArray(games)) {
                 this.games = games;
             }
-        })
+        } catch (e) {
+            //
+        }
 
-        this.$parent.socket.emit("getGamesInUse", games => {
+        try {
+            const games = await this.$root.socket.emitP("getGamesInUse");
             if (Array.isArray(games)) {
                 this.selectedGames = games;
             }
-        })
+        } catch (e) {
+            //
+        }
 
-        this.$parent.socket.on("gamesInUseUpdate", (games) => {
-            if (this.colour !== "primary") return;
-            
+        this.$root.socket.on("gamesInUseUpdate", (games) => {
             if (Array.isArray(games)) {
                 this.selectedGames = games;
 
                 if (this.loading) {
                     this.loading = false;
+                    this.disabled = false;
                     this.colour = "success"
 
                     setTimeout(() => {
@@ -93,15 +99,12 @@ export default {
                 } else if (this.colour === "primary") {
                     this.disabled = true;
                     this.update = true;
-                    this.loading = true;
     
                     setTimeout(() => {
                         this.disabled = false;
                         this.update = false;
-                        this.loading = false;
                     }, 4000)
                 }
-
             }
         })
     },
@@ -109,8 +112,9 @@ export default {
     methods: {
         updateGames() {
             this.loading = true;
+            this.disabled = true;
 
-            this.$parent.socket.emit("setGamesInUse", this.selectedGames)
+            this.$root.socket.emit("setGamesInUse", this.selectedGames)
         }
     }
 }

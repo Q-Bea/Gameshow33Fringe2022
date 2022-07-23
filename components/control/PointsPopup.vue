@@ -47,13 +47,20 @@ export default {
             teams: []
         };
     },
-    created() {
-        this.$root.socket.emit("getTeamsData", (data) => {
-            this.teams = data;
-        })
+    async created() {
+        try {
+            const teamData = await this.$root.socket.emitP("getTeamsData");
+            if (Array.isArray(teamData)) {
+                this.teams = teamData;
+            }
+        } catch(e) {
+            //
+        }
 
         this.$root.socket.on("teamsUpdate", (data) => {
-            this.teams = data;
+            if (Array.isArray(data)) {
+                this.teams = data;
+            }
         });
     },
     methods: {

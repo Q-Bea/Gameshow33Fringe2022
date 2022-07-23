@@ -11,8 +11,15 @@ import Base from "@/components/projector/Base.vue"
 import Points from "@/components/projector/scenes/points/Points.vue"
 import Wheel from "@/components/projector/scenes/wheel/Wheel.vue"
 import Blank from "@/components/projector/Blank.vue"
+import StandOnTime from "~/components/projector/games/StandOnTime.vue"
 
-const KNOWN_SCENES = ["Base", "Points", "Wheel", "Blank"];
+const KNOWN_SCENES = [
+    "Base", 
+    "Points", 
+    "Wheel", 
+    "Blank",
+    "StandOnTime"
+];
 
 export default {
     data() {
@@ -20,34 +27,50 @@ export default {
             currentDisplay: "Base",
         }
     },
-    mounted() {
+    async created() {
         //Socket vuex bindings
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
 
-        this.$root.socket.emit("getTeamsData", (data) => {
-            this.$store.commit("teams/setData", data);
-        })
+        try {
+            const teamData = await this.$root.socket.emitP("getTeamsData");
+            if (Array.isArray(teamData)) {
+                this.$store.commit("teams/setData", teamData);
+            }
+        } catch (e) {
+            //
+        }
 
-        this.$root.socket.on("teamsUpdate", (data) => {
-            this.$store.commit("teams/setData", data);
-        });
+        try {
+            const options = await this.$root.socket.emitP("getWheelOptions");
+            if (Array.isArray(options)) {
+                this.$store.commit("wheel/setOptions", options);
+            }
+        } catch (e) {
+            //
+        }
 
-        this.$root.socket.emit("getWheelOptions", (data) => {
-            this.$store.commit("wheel/setOptions", data);
-        })
-
-        this.$root.socket.on("wheelUpdate", (data) => {
-            this.$store.commit("wheel/setOptions", data);
-        })
-
-        this.$root.socket.emit("getActiveDisplays", data => {
-            if (KNOWN_SCENES.includes(data.current)) {
+        try {
+            const displays = await this.$root.socket.emitP("getActiveDisplays");
+            if (displays !== undefined && KNOWN_SCENES.includes(data.current)) {
                 this.currentDisplay = data.current;
             }
+        } catch (e) {
+            //
+        }
+
+        this.$root.socket.on("teamsUpdate", (data) => {
+            if (Array.isArray(data)) {
+                this.$store.commit("teams/setData", data);
+            }
+        });
+
+        this.$root.socket.on("wheelUpdate", (data) => {
+            if (Array.isArray(data))
+            this.$store.commit("wheel/setOptions", data);
         })
 
         this.$root.socket.on("activeDisplaysUpdate", data => {
-            if (KNOWN_SCENES.includes(data.current)) {
+            if (data !== undefined && KNOWN_SCENES.includes(data.current)) {
                 this.currentDisplay = data.current;
             }
         })
@@ -63,6 +86,6 @@ export default {
             el.msRequestFullscreen().catch(() => {/* */});
         }
     },
-    components: { Base, Points, Wheel, Blank }
+    components: { Base, Points, Wheel, Blank, StandOnTime }
 }
 </script>

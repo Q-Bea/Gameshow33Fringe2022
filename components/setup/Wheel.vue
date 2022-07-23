@@ -48,6 +48,7 @@
                     :disabled="!valid || disabled"
                     :color="submitColour"
                     :loading="loading"
+                    style="transition: background-color 0.2s;"
                 >Update</v-btn>
             </v-container>
         </v-form>
@@ -70,20 +71,24 @@ export default {
         }
     },
 
-    created() {
-        this.$parent.socket.emit("getWheelOptions", (data) => {
-            if (data) {
-                this.wheelOptions = data;
+    async created() {
+        try {
+            const options = await this.$root.socket.emitP("getWheelOptions");
+            if (Array.isArray(options)) {
+                this.wheelOptions = options;
             }
-        });
+        } catch(e) {
+
+        }
 
         //Listen for changes incase other client submits
-        this.$parent.socket.on("wheelUpdate", (data) => {
-            if (data && Array.isArray(data)) {
+        this.$root.socket.on("wheelUpdate", (data) => {
+            if (Array.isArray(data)) {
                 this.wheelOptions = data;
 
                 if (this.loading) {
                     this.loading = false;
+                    this.disabled = false;
                     this.submitColour = "success";
 
                     setTimeout(() => {
@@ -94,12 +99,10 @@ export default {
                     //Make sure updating on this client doesn't trigger the alert
                     this.update = true;
                     this.disabled = true;
-                    this.loading = true;
 
                     setTimeout(() => {
                         this.update = false;
                         this.disabled = false;
-                        this.loading = false;
                     }, 4000)
                 }
             }
@@ -109,8 +112,9 @@ export default {
     methods: {
         updateWheelOptions() {
             this.loading = true;
+            this.disabled = true;
 
-            this.$parent.socket.emit("setWheelOptions", this.wheelOptions);
+            this.$root.socket.emit("setWheelOptions", this.wheelOptions);
         }
     }
 }

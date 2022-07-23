@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import MongoDisplayDataFunctions from "./display.js";
+import MongoDisplayEventFunctions from "./displayEvent.js";
 import MongoTeamDataFunctions from "./teams.js";
 import MongoWheelDataFunctions from "./wheel.js";
 
@@ -23,6 +24,11 @@ export default class MongoInstance {
      */
     displayDataFunctions
 
+    /**
+     * @type {MongoDisplayEventFunctions}
+     */
+    displayEventFunctions
+
     constructor() {
         const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@gameshow33finge2022.ao3wxh7.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -42,10 +48,12 @@ export default class MongoInstance {
         
         console.log("Mongo Connected!");
 
-        const collection = this.mongoClient.db("server").collection("config");
+        const configCollection = this.mongoClient.db("server").collection("config");
+        const eventCollection = this.mongoClient.db("server").collection("displayEvents")
 
-        this.teamDataFunctions = new MongoTeamDataFunctions(collection);
-        this.wheelDataFunctions = new MongoWheelDataFunctions(collection);
-        this.displayDataFunctions = new MongoDisplayDataFunctions(collection);
+        this.teamDataFunctions = new MongoTeamDataFunctions(configCollection);
+        this.wheelDataFunctions = new MongoWheelDataFunctions(configCollection);
+        this.displayDataFunctions = new MongoDisplayDataFunctions(configCollection);
+        this.displayEventFunctions = new MongoDisplayEventFunctions(eventCollection)
     }
 }

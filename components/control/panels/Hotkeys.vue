@@ -1,16 +1,8 @@
 <template>
     <v-container fluid>
-        <v-container style="width: max-content;">
-            <v-card>
-                <Status/>
-            </v-card>
-        </v-container>
-
-        <br/>
-
         <v-slide-x-transition mode="out-in">
-            <component 
-                v-if="KNOWN_SCENES.includes(currentScene)"
+            <component
+                v-if="KNOWN_DISPLAYS.includes(currentScene)"
                 :is="currentScene"
             />
 
@@ -29,10 +21,9 @@
 <script>
 import Wheel from "./hotkeys/Wheel.vue"
 import StandOnTime from "./hotkeys/StandOnTime.vue"
-import Status from "./Status.vue"
 
 export default {
-    components: { Wheel, StandOnTime, Status },
+    components: { Wheel, StandOnTime },
     computed: {
         currentScene() {
             return this.$store.state.display.current
@@ -41,17 +32,25 @@ export default {
 
     data() {
         return {
-            KNOWN_SCENES: ["Wheel", "StandOnTime"]
+            KNOWN_DISPLAYS: ["Wheel", "StandOnTime"]
         }
     },
 
-    created() {
-        this.$root.socket.emit("getWheelOptions", data => {
-            this.$store.commit("wheel/setOptions", data);
-        })
+    async created() {
+        try {
+            const options = await this.$root.socket.emitP("getWheelOptions");
+    
+            if (Array.isArray(options)) {
+                this.$store.commit("wheel/setOptions", data);
+            }
+        } catch(e) {
+            //
+        }
 
         this.$root.socket.on("wheelUpdate", data => {
-            this.$store.commit("wheel/setOptions", data);
+            if (Array.isArray(data)) {
+                this.$store.commit("wheel/setOptions", data);
+            }
         })
     }
 }

@@ -4,31 +4,53 @@
         height="150"
         width="150"
         @click="click"
-        :color="colour ?? 'primary lighten-1'"
-        style="transition: background-color 0.2s;"
+        :color="overrideColour ?? (colour ?? 'primary lighten-1')"
+        style="transition: background-color 0.1s;"
     >
-        <p class="display-name">{{label}}</p>
+        <p 
+            v-if='label !== undefined' 
+            class="display-name"
+        >{{label}}</p>
+        <div
+            v-else
+            class="text-center display-name"
+        >
+            <slot
+                class="display-name"
+            ></slot>
+        </div>
 
     </v-card>
 </template>
 
 <script>
 export default {
-    props: ["colour", "label", "dataKey"],
-    methods: {
-        click() {
-            this.$root.socket.emit("displayEvent", {
-                key: this.dataKey,
-                type: "push"
-            })
-            
+    props: ["colour", "label", "dataKey", "dataValue", "name"],
 
-            const returnColour = this.colour;
-            this.colour = "green lighten-1";
+    data() {
+        return {
+            overrideColour: undefined
+        }
+    },
+
+    methods: {
+        pulse(colour = "green lighten-1") {
+            this.overrideColour = colour;
             
             setTimeout(() => {
-                this.colour = returnColour;
+                this.overrideColour = undefined;
             }, 230)
+        },
+
+        click() {
+            this.$root.socket.emit("displayEvent", {
+                name: this.name,
+                key: this.dataKey ?? undefined,
+                value: this.dataValue ?? undefined,
+                save: this.dataKey !== undefined && this.dataValue !== undefined
+            })
+
+            this.pulse();
         }
     }
 }
@@ -41,5 +63,6 @@ export default {
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none; /* Standard */
+    overflow: scroll;
 }
 </style>

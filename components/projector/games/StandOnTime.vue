@@ -1,6 +1,4 @@
 <template>
-    <h1 class="game-header">Stand On Time</h1>
-
     <div class="timer-container">
         <div class="team-container">
             <Timer/>
@@ -43,6 +41,10 @@ import Timer from "./SOT/Timer.vue"
 export default {
     components: {Timer},
 
-    
+    created() {
+        this.$root.socket.on("displayEvent", (payload) => {
+            console.log(payload)
+        }) 
+    }
 }
 </script>

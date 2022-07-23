@@ -51,10 +51,16 @@ export default {
         }
     },
 
-    created() {
-        this.$root.socket.emit("getValidScenes", data => {
-            this.scenes = data;
-        })
+    async created() {
+        try {
+            const scenes = await this.$root.socket.emitP("getValidScenes");
+
+            if (Array.isArray(scenes)) {
+                this.scenes = scenes;
+            }
+        } catch(e) {
+            //
+        }
     },
 
     methods: {
