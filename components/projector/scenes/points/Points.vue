@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container class="fill-height maxme">
         <v-row>
             <v-col>
                 <v-card>
@@ -7,14 +7,17 @@
                         {{teams[0].teamName ?? "Team 1"}}
                     </v-card-title>
                     <v-row style="justify-content: center;">
-                        <PointModule
-                            v-for="player in teams[0]?.players"
-                            :key="player.name"
-                            :name="player.name"
-                            :points="player.points"
-                            :teamIndex="0"
-                            class="point-module"
-                        ></PointModule>
+                        <v-container class="team-info">
+                            <v-row justify="center">
+                                <span 
+                                    class="player-name"
+                                    v-for="name in teams[0]?.players"
+                                    :key="name"
+                                >{{name}}</span>
+                            </v-row>
+                            <br/>
+                            <p class="team-points">{{teams[0]?.points}}</p>
+                        </v-container>
                     </v-row>
                 </v-card>
             </v-col>
@@ -24,20 +27,46 @@
                         {{teams[1].teamName ?? "Team 2"}}
                     </v-card-title>
                     <v-row style="justify-content: center;">
-                        <PointModule
-                            v-for="player in teams[1]?.players"
-                            :key="player.name"
-                            :name="player.name"
-                            :points="player.points"
-                            class="point-module"
-                            :teamIndex="1"
-                        ></PointModule>
+                        <v-container class="team-info">
+                            <v-row justify="center">
+                                <span 
+                                    class="player-name"
+                                    v-for="name in teams[1]?.players"
+                                    :key="name"
+                                >{{name}}</span>
+                            </v-row>
+                            <br/>
+                            <p class="team-points">{{teams[1]?.points}}</p>
+                        </v-container>
                     </v-row>
                 </v-card>
             </v-col>
         </v-row>
     </v-container>
 </template>
+
+<style scoped>
+.maxme {
+    height: 100vh;
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.team-info {
+    text-align: center;
+    overflow: auto;
+    overflow-y: hidden;
+}
+
+.player-name {
+    overflow: auto;
+    white-space: nowrap;
+    overflow-y: hidden;
+    padding: 5px
+}
+</style>
 
 <script>
 import PointModule from './PointModule.vue'

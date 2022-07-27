@@ -16,6 +16,8 @@
                     <v-form
                         v-model="valid"
                         :disabled="disabled"
+                        @submit="submit"
+                        onsubmit="return false"
                     >
                         <v-text-field
                             :label="dataEntryLabel ?? 'Enter Data'"

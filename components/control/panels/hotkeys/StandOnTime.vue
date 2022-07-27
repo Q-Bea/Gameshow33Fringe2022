@@ -23,7 +23,6 @@
             colour="blue lighten-3"
             eventName="stopPlayerTime"
             :dataValue="player + index"
-            :save="true"
         >
         Stop Time:<br/>
         {{player}}
@@ -43,6 +42,12 @@
         >
         <p class="text-center">Set Target Time</p>
         </DataEntry>
+
+        <ButtonEmitter
+            label="Reset Timer"
+            eventName="resetTimer"
+            colour="orange accent-2"
+        />
     </v-row>
 </template>
 
@@ -88,6 +93,6 @@ export default {
 
         this.$emit("mounted")
     },
-    components: { ButtonEmitter, ButtonToggleEmitter, DataEntry, DataEntry }
+    components: { ButtonEmitter, ButtonToggleEmitter, DataEntry, DataEntry, ButtonEmitter }
 }
 </script>

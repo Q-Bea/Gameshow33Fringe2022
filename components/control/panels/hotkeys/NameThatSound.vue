@@ -15,17 +15,20 @@
         </ButtonEmitter>
 
         <ButtonEmitter
-            :label="'Stop Sounds'"
+            label="Stop Sounds"
             eventName="stopSound"
             colour="red lighten-1"
-        >
-
-        </ButtonEmitter>
+        />
+        
+        <ButtonEmitter
+            label="Hide Icon"
+            eventName="hideIcon"
+            colour="orange lighten-1"
+        />
     </v-row>
 </template>
 
 <script>
-import { onMounted } from 'vue';
 import ButtonEmitter from './generic/ButtonEmitter.vue';
 export default {
     components: { ButtonEmitter, ButtonEmitter },

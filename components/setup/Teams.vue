@@ -10,6 +10,8 @@
             v-model="valid"
             ref="playerNames"
             :disabled="disabled"
+            @submit="updateTeams"
+            onsubmit="return false"
         >
             <v-container fluid>
                 <v-slide-y-transition>

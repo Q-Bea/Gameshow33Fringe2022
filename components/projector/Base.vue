@@ -10,7 +10,7 @@ div {
     text-align: center;
     justify-content: center;
     display: flex;
-    height: 100%;
+    height: 70vh;
     flex-direction: column;
 }
 

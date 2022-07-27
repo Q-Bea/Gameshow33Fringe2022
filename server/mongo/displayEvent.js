@@ -39,7 +39,7 @@ export default class MongoDisplayEventFunctions {
     
             throw Error()
         } catch(e) {
-            console.error("[MONGO] Failed to set display event key val pair");
+            console.error("[MONGO] Failed to set display event key val pair for: " + currentDisplayName);
             return undefined;
         }
     }
@@ -63,7 +63,7 @@ export default class MongoDisplayEventFunctions {
     
             throw Error()
         } catch(e) {
-            console.error("[MONGO] Failed to get saved displayEvent data");
+            console.error("[MONGO] Failed to get saved displayEvent data for: " + currentDisplayName);
             return undefined;
         }
     }

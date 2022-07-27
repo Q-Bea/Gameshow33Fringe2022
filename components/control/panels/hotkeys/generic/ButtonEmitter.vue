@@ -30,12 +30,14 @@ export default {
 
     created() {
         this.$nuxt.$on("displayEvent", (data) => {
+            //Don't trigger if this button was responsible
+            if (this.overrideColour !== undefined) return;
+
             if (
                 data != undefined && 
                 data.eventName != undefined &&
                 data.eventName === this.eventName &&
-                data.value != undefined &&
-                data.value === this.dataValue
+                data.value != undefined ? data.value == this.dataValue : true
             ) {
                 if (data.eventName === this.eventName) {
                     this.pulse("green darken-1");
@@ -58,9 +60,10 @@ export default {
         click() {
             if (!this.eventName) return;
 
+            console.log("emit")
             this.$root.socket.emit("displayEvent", {
                 eventName: this.eventName,
-                value: this.dataValue,
+                value: this.dataValue ?? undefined,
 
                 //For Storage, value is saved
                 save: this.save ?? false

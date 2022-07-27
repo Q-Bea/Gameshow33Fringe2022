@@ -10,6 +10,8 @@
             v-model="valid"
             ref="wheelOptions"
             :disabled="disabled"
+            @submit="updateWheelOptions"
+            onsubmit="return false"
         >
             <v-container fluid>
                 <v-slide-y-transition>

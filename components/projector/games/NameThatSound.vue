@@ -1,5 +1,6 @@
 <template>
     <div class="blank">
+        <h1 style="color: white; padding-top: 5rem" class="text-center">Name That Sound</h1>
         <audio id="audio-player"
             v-if="playing && soundFile != undefined"
             :src="`assets/games/NameThatSound/sound/${soundFile}`"
@@ -9,7 +10,7 @@
 
         </audio>
 
-        <v-fade-transition>
+        <v-fade-transition v-if="!hide">
         <v-icon 
             :key="'yesPlaying'"
             v-if="playing"
@@ -34,7 +35,8 @@
     width: 100vw;
     height: 100vh;
     position: fixed;
-    left:0
+    left:0;
+    top: 0;
 }
 </style>
 
@@ -49,11 +51,16 @@ export default {
             ) {
                 this.soundFile = data.value;
                 this.playing = true;
+                this.hide = false;
             } else if (
                 data.eventName === "stopSound"
             ) {
                 this.playing = false;
                 this.soundFile = undefined;
+            } else if (
+                data.eventName === "hideIcon"
+            ) {
+                this.hide = true;
             }
 
         })
@@ -62,6 +69,7 @@ export default {
     data() {
         return {
             playing: false,
+            hide: true,
             soundFile: undefined,
             knownSounds: []
         }

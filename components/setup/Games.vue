@@ -11,6 +11,8 @@
             v-model="valid"
             ref="gamesOptions"
             :disabled="disabled"
+            @submit="updateGames"
+            onsubmit="return false"
         >
             <v-container fluid>
                 <v-slide-y-transition>
@@ -26,11 +28,13 @@
                     multiple
                     chips
                     v-model="selectedGames"
-                    hint="Please select which games are in use this show"
+                    hint="Select which games are in use this show"
                     persistent-hint
                     placeholder="No Games Selected"
                     required
                     :rules="gameRules"
+                    solo
+                    clearable
                 >
                 </v-select>
 

@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid class="fill-height">
+    <v-container fluid>
         <v-slide-y-transition mode="out-in">
             <component 
                 v-bind:is="currentDisplay"
@@ -103,9 +103,6 @@ export default {
         else if (el.webkitRequestFullscreen) {
             el.webkitRequestFullscreen().catch(() => {/* */});
         }
-        else if (elem.msRequestFullscreen) { /* IE11 */
-            el.msRequestFullscreen().catch(() => {/* */});
-        }
     },
 
     methods: {
@@ -115,11 +112,9 @@ export default {
             try {
                 const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.currentDisplay);
                 if (savedEventData != undefined) {
-                    console.log("emiiting")
                     this.$nuxt.$emit("displayEventSavedData", savedEventData)
                 }
             } catch(e) {
-                console.log(e)
             }
         }
     },
