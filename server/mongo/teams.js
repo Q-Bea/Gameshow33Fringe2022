@@ -35,31 +35,22 @@ export default class MongoTeamDataFunctions {
     async setTeams(teamObjArr, resetScores = true) {
         try {
             if (!Array.isArray(teamObjArr)) throw Error();
-            if (teamObjArr.length > 2) throw Error();
-            if (teamObjArr.length == 0) throw Error();
+            if (teamObjArr.length !== 2) throw Error();
 
             const payload = {}
 
-            if (Array.isArray(teamObjArr[0]?.players)) {
-                teamObjArr[0].players.forEach((player, i) => {
-                    payload[`data.0.players.${i}.name`] = player;
-                    if (resetScores) payload[`data.0.players.${i}.points`] = 0;
-                })
+            if (Array.isArray(teamObjArr[0].players)) {
+                payload["data.0.players"] = teamObjArr[0].players
+                payload["data.0.teamName"] = teamObjArr[0].teamName ?? "Team 1"
 
-                if (teamObjArr[0].teamName) {
-                    payload[`data.0.teamName`] = teamObjArr[0].teamName;
-                }
+                if (resetScores) payload["data.0.points"] = 0
             }
 
-            if (Array.isArray(teamObjArr[1]?.players)) {
-                teamObjArr[1].players.forEach((player, i) => {
-                    payload[`data.1.players.${i}.name`] = player;
-                    if (resetScores) payload[`data.1.players.${i}.points`] = 0;
-                })
+            if (Array.isArray(teamObjArr[1].players)) {
+                payload["data.1.players"] = teamObjArr[1].players
+                payload["data.1.teamName"] = teamObjArr[1].teamName ?? "Team 2"
 
-                if (teamObjArr[1].teamName) {
-                    payload[`data.1.teamName`] = teamObjArr[1].teamName
-                }
+                if (resetScores) payload["data.1.points"] = 0
             }
 
             const res = await this.collection.findOneAndUpdate({
@@ -73,7 +64,7 @@ export default class MongoTeamDataFunctions {
                     "data": 1
                 },
                 returnDocument: "after"
-            });
+            })
 
             if (res.ok) {
                 return res.value.data;
@@ -96,21 +87,21 @@ export default class MongoTeamDataFunctions {
                     data: 1
                 }
             });
-    
+
             return res.data;
         } catch(e) {
-            console.error("[MONGO] Failed to retrieve player data")
+            console.error("[MONGO] Failed to retrieve team data")
             return undefined;
         }
     }
 
-    async addPlayerPoints(playerIndex, teamIndex, points) {
+    async addTeamPoints(teamIndex, points) {
         try {
             const res = await this.collection.findOneAndUpdate({
                 config: this.configName,
             },  {
                 $inc: {
-                    [`data.${teamIndex}.players.${playerIndex}.points`]: points
+                    [`data.${teamIndex}.points`]: points
                 }
             },  {
                 projection: {
@@ -126,7 +117,7 @@ export default class MongoTeamDataFunctions {
 
             throw Error();
         } catch(e) {
-            console.error("[MONGO] Failed to add points to player " + playerName);
+            console.error("[MONGO] Failed to add points to teamIndex " + teamIndex);
             return undefined;
         }
     }
@@ -141,11 +132,13 @@ export default class MongoTeamDataFunctions {
                         data: [
                             {
                                 teamName: "Team 1",
-                                players: []
+                                players: [],
+                                points: 0
                             },
                             {
-                                teamName: "Team 1",
-                                players: []
+                                teamName: "Team 2",
+                                players: [],
+                                points: 0
                             }
                         ]
                     }
@@ -163,20 +156,17 @@ export default class MongoTeamDataFunctions {
                 }
     
                 throw Error();
-            } else if (points) {
+            } else {
                 const res = await this.collection.findOneAndUpdate({
                     config: this.configName
                 },  {
                     $set: {
-                        "data.$[team].players.$[player].points": 0
+                        "data.$[team].points": 0
                     }
                 },  {
                     arrayFilters: [{
-                        "player.points": {
+                        "team.points": {
                             $ne: 0
-                        },
-                        "team.players": {
-                            $ne: null
                         }
                     }],
                     projection: {
@@ -192,7 +182,7 @@ export default class MongoTeamDataFunctions {
                 }
             }
         } catch(e) {
-            console.error("[MONGO] Failed to reset player or team data");
+            console.error("[MONGO] Failed to reset points or team data");
             return undefined;
         }
     }

@@ -7,30 +7,43 @@
         :color="overrideColour ?? (colour ?? 'primary lighten-1')"
         style="transition: background-color 0.1s;"
     >
+        <slot
+            class="display-name"
+        >
         <p 
-            v-if='label !== undefined' 
+            v-if='label != undefined' 
             class="display-name"
         >{{label}}</p>
-        <div
-            v-else
-            class="text-center display-name"
-        >
-            <slot
-                class="display-name"
-            ></slot>
-        </div>
-
+        </slot>
     </v-card>
 </template>
 
 <script>
 export default {
-    props: ["colour", "label", "dataKey", "dataValue", "name"],
+    props: ["colour", "label", "dataValue", "eventName", "save"],
 
     data() {
         return {
             overrideColour: undefined
         }
+    },
+
+    created() {
+        this.$nuxt.$on("displayEvent", (data) => {
+            if (
+                data != undefined && 
+                data.eventName != undefined &&
+                data.eventName === this.eventName &&
+                data.value != undefined &&
+                data.value === this.dataValue
+            ) {
+                if (data.eventName === this.eventName) {
+                    this.pulse("green darken-1");
+                }
+            }
+        })
+
+        //Buttons don't save any data so they don't need the synchronization listener
     },
 
     methods: {
@@ -43,11 +56,14 @@ export default {
         },
 
         click() {
+            if (!this.eventName) return;
+
             this.$root.socket.emit("displayEvent", {
-                name: this.name,
-                key: this.dataKey ?? undefined,
-                value: this.dataValue ?? undefined,
-                save: this.dataKey !== undefined && this.dataValue !== undefined
+                eventName: this.eventName,
+                value: this.dataValue,
+
+                //For Storage, value is saved
+                save: this.save ?? false
             })
 
             this.pulse();

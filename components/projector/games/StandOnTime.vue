@@ -42,9 +42,17 @@ export default {
     components: {Timer},
 
     created() {
-        this.$root.socket.on("displayEvent", (payload) => {
+        this.$nuxt.$on("displayEvent", (payload) => {
             console.log(payload)
         }) 
+
+        this.$nuxt.$on("displayEventSavedData", (data) => {
+            console.log(data)
+        })
+
+
+
+        this.$emit("mounted")
     }
 }
 </script>

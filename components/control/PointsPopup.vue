@@ -1,31 +1,51 @@
 <template>
     <v-container>
         <v-row>
-            <!-- Team1 -->
             <v-col style="padding-right: 30px">
-                <h2 class="team-header">{{teams[0]?.teamName ?? "Team 1"}}</h2>
+                <h2 
+                    class="team-header"
+                    v-if="teams[0] != undefined"
+                >{{teams[0]?.teamName ?? "Team 1"}}</h2>
                 <v-row justify="center">
-                    <PointModule 
-                        v-for="(player, index) in teams[0]?.players" 
-                        :key="player.name" 
-                        :name="player.name"
-                        :points="player.points"
-                        :teamIndex="0"
-                        :playerIndex="index"/>
+                    <div class="point-module">
+                        <v-btn @click="pointsModify(0, 1)" width="100%" color="success" location="top center">+</v-btn>
+                            <v-container class="team-info">
+                                <v-row justify="center">
+                                    <span 
+                                        class="player-name"
+                                        v-for="name in teams[0]?.players"
+                                        :key="name"
+                                    >{{name}}</span>
+                                </v-row>
+                                <br/>
+                                <p class="team-points">{{teams[0]?.points}}</p>
+                            </v-container>
+                        <v-btn @click="pointsModify(0, -1)" width="100%" location="bottom center" color="error">-</v-btn>
+                    </div>
                 </v-row>
             </v-col>
 
-            <!-- Team2 -->
             <v-col style="padding-left: 30px">
-                <h2 class="team-header">{{teams[1]?.teamName ?? "Team 2"}}</h2>
+                <h2 
+                    class="team-header"
+                    v-if="teams[1] != undefined"
+                >{{teams[1]?.teamName ?? "Team 2"}}</h2>
                 <v-row justify="center">
-                    <PointModule 
-                        v-for="(player, index) in teams[1]?.players" 
-                        :key="player.name + index" 
-                        :name="player.name"
-                        :points="player.points"
-                        :teamIndex="1"
-                        :playerIndex="index"/>
+                    <div class="point-module">
+                        <v-btn @click="pointsModify(1, 1)" width="100%" color="success" location="top center">+</v-btn>
+                            <v-container class="team-info">
+                                <v-row justify="center">
+                                    <span 
+                                        class="player-name"
+                                        v-for="name in teams[1]?.players"
+                                        :key="name"
+                                    >{{name}}</span>
+                                </v-row>
+                                    <br/>
+                                    <p class="team-points">{{teams[1]?.points}}</p>
+                            </v-container>
+                        <v-btn @click="pointsModify(1, -1)" width="100%" location="bottom center" color="error">-</v-btn>
+                    </div>
                 </v-row>
             </v-col>
         </v-row>
@@ -37,10 +57,31 @@
     text-align: center;
     margin-bottom: 1rem;
 }
+
+.point-module {
+    margin: 5px;
+    padding: 3px;
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+.team-info {
+    text-align: center;
+    overflow: auto;
+    overflow-y: hidden;
+}
+
+.player-name {
+    overflow: auto;
+    white-space: nowrap;
+    overflow-y: hidden;
+    padding: 5px
+}
 </style>
 
 <script>
-import PointModule from './PointModule.vue'
 export default {
     data: () => {
         return {
@@ -64,14 +105,12 @@ export default {
         });
     },
     methods: {
-        pointsModify(playerIndex, teamIndex, points) {
+        pointsModify(teamIndex, points) {
             this.$root.socket.emit("addPlayerPoints", {
-                playerIndex: playerIndex,
                 teamIndex: teamIndex,
                 points: points
             })
         }
-    },
-    components: { PointModule }
+    }
 }
 </script>

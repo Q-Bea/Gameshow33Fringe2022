@@ -4,6 +4,7 @@
             <component
                 v-if="KNOWN_DISPLAYS.includes(currentScene)"
                 :is="currentScene"
+                @mounted="sendHotkeyData"
             />
 
             <v-alert
@@ -21,9 +22,10 @@
 <script>
 import Wheel from "./hotkeys/Wheel.vue"
 import StandOnTime from "./hotkeys/StandOnTime.vue"
+import NameThatSound from "./hotkeys/NameThatSound.vue"
 
 export default {
-    components: { Wheel, StandOnTime },
+    components: { Wheel, StandOnTime, NameThatSound },
     computed: {
         currentScene() {
             return this.$store.state.display.current
@@ -32,7 +34,7 @@ export default {
 
     data() {
         return {
-            KNOWN_DISPLAYS: ["Wheel", "StandOnTime"]
+            KNOWN_DISPLAYS: ["Wheel", "StandOnTime", "NameThatSound"]
         }
     },
 
@@ -52,6 +54,28 @@ export default {
                 this.$store.commit("wheel/setOptions", data);
             }
         })
+
+        this.$root.socket.on("displayEvent", data => {
+            if (data != undefined) {
+                this.$nuxt.$emit("displayEvent", data)
+            }
+        })
+    },
+
+    methods: {
+        //FIXME: For some reason, this sends tons of emissions to the server (don't know why)
+        async sendHotkeyData() {
+            //Child loading takes a non-deterministic amount of time because it is a dynamic component
+            //So to ensure it gets information when it's ready, the component has to emit
+            try {
+                const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.$store.state.display.current);
+                if (savedEventData != undefined) {
+                    this.$nuxt.$emit("displayEventSavedData", savedEventData)
+                }
+            } catch(e) {
+                //
+            }
+        }
     }
 }
 </script>

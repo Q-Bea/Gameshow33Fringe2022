@@ -154,7 +154,7 @@ export default function Svc(socket, io) {
              *          },
              *          ...
              *      ],
-             *      resetScores: boolean
+             *      resetScores: boolean,
              *  }
              */
 
@@ -190,11 +190,9 @@ export default function Svc(socket, io) {
             if (payload && 
                 payload.points && 
                 typeof payload.points === "number" &&
-                typeof payload.teamIndex === "number" && 
-                typeof payload.playerIndex === "number"
+                typeof payload.teamIndex === "number"
             ) {
-                const res = await db.teamDataFunctions.addPlayerPoints(
-                    payload.playerIndex,
+                const res = await db.teamDataFunctions.addTeamPoints(
                     payload.teamIndex,
                     payload.points
                 )
@@ -204,6 +202,16 @@ export default function Svc(socket, io) {
         },
 
         async getTeamsData() {
+            /*
+            [
+                {
+                    players: string[],
+                    teamName: string
+                    points: number
+                },
+                ...
+            ]
+            */
             try {
                 const res = await db.teamDataFunctions.getTeamData();
                 
@@ -260,17 +268,18 @@ export default function Svc(socket, io) {
                 };
     
                 if (typeof payload === "object") {
-                    if (payload.name === undefined) return;
+                    if (payload.eventName === undefined) return;
                     //A name is required for all emissions, so that
                     //type can be filtered
-    
+
                     if (payload.save) {
                         db.displayEventFunctions.setKeyVal(
                             payload.writeToDisplay,
-                            payload.key,
-                            payload.val
+                            payload.eventName,
+                            payload.value
                         )
                     }
+                    
                     io.emit("displayEvent", payload);
                 }
 
@@ -295,5 +304,8 @@ export default function Svc(socket, io) {
         },
 
         //----END DISPLAY EVENT SOCKETS----
+        getNumberOfConnectedSockets() {
+            return Object.keys(io.sockets.sockets).length
+        }
     })
 }

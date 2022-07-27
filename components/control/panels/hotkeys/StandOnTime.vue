@@ -1,9 +1,8 @@
 <template>
     <v-row>
         <ButtonToggleEmitter
-            dataKey="timerToggle"
-            name="timerToggle"
-            :isActive="eventData?.timerToggle ?? false"
+            eventName="timerToggle"
+            :getTrueValue="curTime"
         >
             <template v-slot:active>
                 <p class="text-center">
@@ -20,18 +19,37 @@
 
         <ButtonEmitter
             v-for="(player, index) in getPlayers()"
-            :key="player.name + index"
+            :key="player + index"
             colour="blue lighten-3"
+            eventName="stopPlayerTime"
+            :dataValue="player + index"
+            :save="true"
         >
         Stop Time:<br/>
-        {{player.name}}
+        {{player}}
         </ButtonEmitter>
+
+        <DataEntry
+            dataEntryLabel="Target in seconds"
+            dataEntrySuffix="sec."
+            dataEntryType="number"
+            :dataEntryRules="[
+                v => !!v || 'Required!',
+                v => !isNaN(parseInt(v)) || 'Not a number!',
+                v => parseInt(v) > 0 || 'Out of bounds!'
+            ]"
+            eventName="timerTarget"
+            :save="true"
+        >
+        <p class="text-center">Set Target Time</p>
+        </DataEntry>
     </v-row>
 </template>
 
 <script>
 import ButtonEmitter from './generic/ButtonEmitter.vue'
 import ButtonToggleEmitter from './generic/ButtonToggleEmitter.vue'
+import DataEntry from "./generic/DataEntry.vue"
 export default {
     methods: {
         getPlayers() {
@@ -40,15 +58,16 @@ export default {
             }
     
             return [];
+        },
+
+        curTime() {
+            return Date.now()
         }
     },
     
     data() {
         return {
-            data: [],
-            eventData: {
-                timerToggle: false
-            }
+            data: []
         }
     },  
     async created() {
@@ -61,31 +80,14 @@ export default {
             //
         }
 
-        try {
-            const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", "StandOnTime");
-            if (savedEventData !== undefined) {
-                this.eventData = savedEventData;
-            }
-        } catch(e) {
-            //
-        }
-
         this.$root.socket.on("teamsUpdate", data => {
             if (Array.isArray(data)) {
                 this.data = data;
             }
         })
 
-        this.$root.socket.on("displayEvent", (data) => {
-            if (
-                data !== undefined && 
-                data.key !== undefined && 
-                data.val !== undefined
-            ) {
-                this.eventData[data.key] = data.val;
-            }
-        })
+        this.$emit("mounted")
     },
-    components: {ButtonEmitter, ButtonToggleEmitter}
+    components: { ButtonEmitter, ButtonToggleEmitter, DataEntry, DataEntry }
 }
 </script>

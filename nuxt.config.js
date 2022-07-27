@@ -4,7 +4,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - Gameshow 33 - Fringe 2022',
+    titleTemplate: '%s - Gameshow 33 | Fringe 2022',
     title: 'Gameshow 33 Fringe 2022',
     meta: [
       { charset: 'utf-8' },
@@ -83,6 +83,10 @@ export default {
       lang: 'en'
     }
   },
+
+  serverMiddleware: [
+    { path: "/api", handler: '~/server-middleware/api.js'}
+  ],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {

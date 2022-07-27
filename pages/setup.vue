@@ -7,10 +7,10 @@
 
         <v-container fluid>
             <v-row>
-                <Teams style="width: 400px;" />
+                <Teams style="width: 400px;"/>
                 <Wheel style="width: 400px;"/>
                 <Games style="width: 400px;"/>
-                <Resets style="width: 400px;"/>
+                <!-- <Resets style="width: 400px;"/> -->
             </v-row>
         </v-container>
 
@@ -35,6 +35,9 @@ import WebsocketDisconnect from "~/components/control/WebsocketDisconnect.vue";
 import Resets from "~/components/setup/Resets.vue";
 export default {
     middleware: 'auth',
+    head: {
+        title: "Game Setup"
+    },
     data() {
         return {
             connected: undefined

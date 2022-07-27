@@ -29,18 +29,26 @@
                             required
                             :rules="playerNameRules"
                             v-model="teams[0].teamName"
-                        >
+                        />
 
-                        </v-text-field>
                         <v-text-field
-                            v-for="index in 3"
+                            label="# of Players"
+                            dense
+                            type="number"
+                            :rules="teamSizeRules"
+                            required
+                            outlined
+                            v-model="teams[0].teamSize"
+                        />
+
+                        <v-text-field
+                            v-for="index in getTeamSize(0)"
                             :key="index"
                             :label="'Player ' + index"
                             required
                             :rules="playerNameRules"
                             v-model="teams[0].players[index - 1]"
-                        >
-                        </v-text-field>
+                        />
                     </v-col>
                     <v-col>
                         <v-text-field
@@ -49,28 +57,37 @@
                             required
                             :rules="playerNameRules"
                             v-model="teams[1].teamName"
-                        >
+                        />
 
-                        </v-text-field>
                         <v-text-field
-                            v-for="index in 3"
+                            label="# of Players"
+                            dense
+                            type="number"
+                            :rules="teamSizeRules"
+                            required
+                            outlined
+                            v-model="teams[1].teamSize"
+                        />
+                        
+                        <v-text-field
+                            v-for="index in getTeamSize(1)"
                             :key="index"
                             :label="'Player ' + index"
                             required
                             :rules="playerNameRules"
                             v-model="teams[1].players[index - 1]"
-                        >
-                        </v-text-field>
+                        />
                     </v-col>
                 </v-row>
                 <v-checkbox 
-                    label="Reset Scores" 
+                    label="Reset Team Scores" 
                     required
                     v-model="resetScore"
                 ></v-checkbox>
                 <v-slide-y-transition>
                     <p class="text-center" v-if="defaultPrompt">Defaults filled | Click 'Update' to save!</p>
                 </v-slide-y-transition>
+
                 <v-btn 
                     @click="updateTeams" 
                     :disabled="!valid || disabled"
@@ -98,14 +115,21 @@ export default {
             playerNameRules: [
                 v => !!v || "Name is required!"
             ],
+            teamSizeRules: [
+                value => value <= 10 || "Team cannot have more than 10 players",
+                value => value > 0 || "Team must have at least 1 player"
+                
+            ],
             teams: [
                 {
                     teamName: "Team 1",
-                    players: []
+                    players: [],
+                    teamSize: 3
                 },
                 {
                     teamName: "Team 2",
-                    players: []
+                    players: [],
+                    teamSize: 3
                 }
             ],
             resetScore: true,
@@ -122,10 +146,15 @@ export default {
             const data = await this.$root.socket.emitP("getTeamsData");
             if (Array.isArray(data)) {
                 if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
-                if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
-                
+                if (data[0]?.players) {
+                    this.teams[0].players = data[0].players;
+                    this.teams[0].teamSize = data[0].players.length
+                }
                 if (data[1]?.teamName) this.teams[1].teamName = data[1].teamName;
-                if (data[1]?.players) this.teams[1].players = data[1].players.map(player => player.name);
+                if (data[1]?.players) {
+                    this.teams[1].players = data[1].players;
+                    this.teams[1].teamSize = data[1].players.length;
+                }
             }
         } catch(e) {
             //
@@ -135,10 +164,16 @@ export default {
         this.$root.socket.on("teamsUpdate", (data) => {
             if (Array.isArray(data)) {
                 if (data[0]?.teamName) this.teams[0].teamName = data[0].teamName;
-                if (data[0]?.players) this.teams[0].players = data[0].players.map(player => player.name);
+                if (data[0]?.players) {
+                    this.teams[0].players = data[0].players
+                    this.teams[0].teamSize = data[0].players.length
+                }
                 
                 if (data[1]?.teamName) this.teams[1].teamName = data[1].teamName;
-                if (data[1]?.players) this.teams[1].players = data[1].players.map(player => player.name);
+                if (data[1]?.players) {
+                    this.teams[1].players = data[1].players
+                    this.teams[1].teamSize = data[1].players.length;
+                }
 
                 if (this.loading) {
                     this.loading = false;
@@ -163,9 +198,29 @@ export default {
     },
 
     methods: {
+        getTeamSize(teamIndex) {
+            if (teamIndex > this.teams.length) return
+
+            if (this.teams[teamIndex].teamSize === undefined) return 3;
+
+            const numVal = parseInt(this.teams[teamIndex].teamSize)
+
+            if (isNaN(numVal)) return 0;
+
+            if (numVal < 0) return 0;
+            if (numVal > 10) return 0;
+
+            return numVal;
+        },
+        
         updateTeams() {
             this.loading = true;
             this.disabled = true;
+
+            //Equalize reported team size and array
+            this.teams[0].players.length = this.teams[0].teamSize;
+            this.teams[1].players.length = this.teams[1].teamSize;
+            
 
             this.$root.socket.emit("setTeams", {
                 teams: this.teams,
@@ -181,7 +236,8 @@ export default {
                         "Guest 1",
                         "Guest 2",
                         "Owen"
-                    ]
+                    ],
+                    teamSize: 3
                 },
                 {
                     teamName: "Team 2",
@@ -189,7 +245,8 @@ export default {
                         "Guest 4",
                         "Guest 5",
                         "Rob"
-                    ]
+                    ],
+                    teamSize: 3
                 }
             ]
 

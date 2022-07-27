@@ -63,7 +63,7 @@ export default class MongoDisplayEventFunctions {
     
             throw Error()
         } catch(e) {
-            console.error("[MONGO] Failed to get display event key value");
+            console.error("[MONGO] Failed to get saved displayEvent data");
             return undefined;
         }
     }

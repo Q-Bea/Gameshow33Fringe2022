@@ -47,6 +47,7 @@ export default {
             return this.$store.state.teams.data;
         }
     },
+    
     components: { PointModule }
 }
 </script>

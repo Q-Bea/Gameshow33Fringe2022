@@ -103,7 +103,7 @@ export default {
 
         try {
             const displays = await this.$root.socket.emitP("getActiveDisplays");
-            if (displays !== undefined) {
+            if (displays != undefined) {
                 this.$store.commit("display/set", displays)
             }
         } catch (e) {
@@ -120,7 +120,7 @@ export default {
         }
 
         this.$root.socket.on("activeDisplaysUpdate", display => {
-            if (display !== undefined) {
+            if (display != undefined) {
                 this.$store.commit("display/set", display)
             }
         })
