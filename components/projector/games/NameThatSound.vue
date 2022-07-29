@@ -2,7 +2,7 @@
     <div class="blank">
         <audio id="audio-player"
             v-if="playing && soundFile != undefined"
-            :src="`assets/games/NameThatSound/sound/${soundFile}`"
+            :src="`assets/games/NameThatSound/sounds/${soundFile}`"
             autoplay
             @ended="playing = false; soundFile = undefined"
         >
