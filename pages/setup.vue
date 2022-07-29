@@ -8,7 +8,7 @@
         <v-container fluid>
             <v-row>
                 <Teams style="width: 400px;"/>
-                <Wheel style="width: 400px;"/>
+                <!-- <Wheel style="width: 400px;"/> -->
                 <Games style="width: 400px;"/>
                 <!-- <Resets style="width: 400px;"/> -->
             </v-row>
