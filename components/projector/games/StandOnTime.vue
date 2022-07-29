@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container fluid class="sot-container">
         <!-- TODO: Game Title -->
         <div class="target-line">
             Target<br/>{{stylizedTarget}}
@@ -26,6 +26,13 @@
 </template>
 
 <style scoped>
+.sot-container {
+    background-color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+}
 .game-header {
     text-align: center;
     font-size: xx-large;
@@ -36,7 +43,7 @@
     left: 50%;
     transform: translateX(-50%);
     top: 50px;
-    border-bottom: 5px double lightgray;
+    border-bottom: 5px double black;
     width: 100%;
     padding-bottom: 5rem;
     text-align: center;
@@ -57,7 +64,8 @@ export default {
             teams: [],
             timersRaw: [],
             stoppedTimers: new Set(),
-            targetSeconds: undefined
+            targetSeconds: undefined,
+            hideTimer: true
         }
     },
 
@@ -73,26 +81,28 @@ export default {
         stylizedTarget() {
             const target = this.targetSeconds;
 
-            if (target === undefined) {
+            if (target == undefined || this.hideTimer) {
                 return "--:--"
             } else {
                 let seconds = Math.floor(this.targetSeconds);
                 const minutes = Math.floor(seconds / 60);
                 seconds = seconds % 60;
 
-                return `${(minutes < 10 ? "0" : "") + minutes}:${(seconds < 10 ? "0" : "") + seconds}`
+                // return `${(minutes < 10 ? "0" : "") + minutes}:${(seconds < 10 ? "0" : "") + seconds}`
+                return `${minutes} minute${minutes === 1 ? "" : "s"} and ${seconds} second${seconds === 1 ? "" : "s"}`
             }
         }
     },
 
     async created() {
         this.$nuxt.$on("displayEvent", (payload) => {
-            if (payload !== undefined && payload.eventName) {
+            if (payload != undefined && payload.eventName) {
                 switch(payload.eventName) {
                     case "timerToggle":
                         if (typeof payload.value === "number") {
                             this.startTime = payload.value;
                             this.timerActive = true;
+                            this.hideTimer = false;
 
                             this.startTicker()
                         } else {
@@ -117,11 +127,13 @@ export default {
                     case "timerTarget":
                         if (typeof payload.value === "number") {
                             this.targetSeconds = payload.value;
+                            this.hideTimer = false;
                         }
                         break;
 
                     case "resetTimer":
                         this.startTime = undefined;
+                        this.hideTimer = true;
                         this.stoppedTimers.clear();
 
                         this.timersRaw = [];
@@ -148,12 +160,13 @@ export default {
         })
 
         this.$nuxt.$on("displayEventSavedData", (data) => {
-            if (data !== undefined) {
+            if (data != undefined) {
                 if ("timerToggle" in data) {
                     this.startTime = data.timerToggle;
                     
                     if (typeof data.timerToggle === "number") {
                         this.timerActive = true;
+                        this.hideTimer = false;
                         this.startTicker();
                     }
                 }

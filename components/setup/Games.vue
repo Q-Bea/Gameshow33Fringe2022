@@ -24,11 +24,28 @@
                 </v-slide-y-transition>
 
                 <v-select
-                    :items="games"
+                    :items="techGames"
+                    label="Tech Games"
                     multiple
                     chips
-                    v-model="selectedGames"
-                    hint="Select which games are in use this show"
+                    v-model="selectedTechGames"
+                    hint="Select which tech games in this show"
+                    persistent-hint
+                    placeholder="No Games Selected"
+                    required
+                    :rules="gameRules"
+                    solo
+                    clearable
+                >
+                </v-select>
+
+                <v-select
+                    :items="noTechGames"
+                    label="No Tech Games"
+                    multiple
+                    chips
+                    v-model="selectedNoTechGames"
+                    hint="Select which no-tech games are in this show"
                     persistent-hint
                     placeholder="No Games Selected"
                     required
@@ -56,8 +73,10 @@
 export default {
     data() {
         return {
-            games: [],
-            selectedGames: [],
+            techGames: [],
+            noTechGames: [],
+            selectedTechGames: [],
+            selectedNoTechGames: [],
             colour: "primary",
             disabled: false,
             valid: false,
@@ -72,26 +91,29 @@ export default {
     async created() {
         try {
             const games = await this.$root.socket.emitP("getValidGames");
-            if (Array.isArray(games)) {
-                this.games = games;
+            if (games != undefined) {
+                if (Array.isArray(games.tech)) {
+                    this.techGames = games.tech;
+                }
+
+                if (Array.isArray(games.noTech)) {
+                    this.noTechGames = games.noTech;
+                }
             }
+
         } catch (e) {
             //
         }
 
         try {
             const games = await this.$root.socket.emitP("getGamesInUse");
-            if (Array.isArray(games)) {
-                this.selectedGames = games;
-            }
+            this.incomingData(games)
         } catch (e) {
             //
         }
 
         this.$root.socket.on("gamesInUseUpdate", (games) => {
-            if (Array.isArray(games)) {
-                this.selectedGames = games;
-
+            if (this.incomingData(games)) {             
                 if (this.loading) {
                     this.loading = false;
                     this.disabled = false;
@@ -114,11 +136,33 @@ export default {
     },
 
     methods: {
+        incomingData(games) {
+            console.log(games)
+            if (games != undefined) {
+                let changed = false;
+                if (Array.isArray(games.tech)) {
+                    this.selectedTechGames = games.tech;
+                    changed = true;
+                }
+
+                if (Array.isArray(games.noTech)) {
+                    this.selectedNoTechGames = games.noTech;
+                    changed = true;
+                }
+
+                return changed;
+            }
+
+            return false;
+        },
         updateGames() {
             this.loading = true;
             this.disabled = true;
 
-            this.$root.socket.emit("setGamesInUse", this.selectedGames)
+            this.$root.socket.emit("setGamesInUse", {
+                tech: this.selectedTechGames,
+                noTech: this.selectedNoTechGames
+            })
         }
     }
 }

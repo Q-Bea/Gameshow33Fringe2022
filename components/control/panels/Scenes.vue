@@ -100,6 +100,7 @@ export default {
 <style scoped>
 .display-name {
     font-size: larger;
+    text-align: center;
     pointer-events: none;
 
     -webkit-user-select: none; /* Safari */        

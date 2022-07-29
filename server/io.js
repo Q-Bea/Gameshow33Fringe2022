@@ -128,17 +128,19 @@ export default function Svc(socket, io) {
             }
         },
 
-        async setGamesInUse(games) {
+        async setGamesInUse(gameObj) {
             if (!authenticate(socket)) {
                 socket.disconnect(true);
                 return;
             };
 
-            if (Array.isArray(games)) {
-                const res = await db.displayDataFunctions.setGamesInUse(games);
+            if (gameObj == undefined || typeof gameObj !== "object") return;
 
-                io.emit("gamesInUseUpdate", res);
-            }
+            if (!Array.isArray(gameObj.tech) || !Array.isArray(gameObj.noTech)) return;
+
+            const res = await db.displayDataFunctions.setGamesInUse(gameObj);
+
+            io.emit("gamesInUseUpdate", res);
         },
         //----End SCENE DATA----
 
@@ -268,7 +270,7 @@ export default function Svc(socket, io) {
                 };
     
                 if (typeof payload === "object") {
-                    if (payload.eventName === undefined) return;
+                    if (payload.eventName == undefined) return;
                     //A name is required for all emissions, so that
                     //type can be filtered
 

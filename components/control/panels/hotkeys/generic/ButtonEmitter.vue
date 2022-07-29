@@ -31,7 +31,7 @@ export default {
     created() {
         this.$nuxt.$on("displayEvent", (data) => {
             //Don't trigger if this button was responsible
-            if (this.overrideColour !== undefined) return;
+            if (this.overrideColour != undefined) return;
 
             if (
                 data != undefined && 

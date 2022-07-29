@@ -45,7 +45,7 @@ export default {
             return this.$store.state.display.pending;
         },
         games() {
-            return this.$store.state.games.inUse;
+            return this.$store.state.games.tech;
         }
     },
 
@@ -87,6 +87,7 @@ export default {
 .display-name {
     font-size: larger;
     pointer-events: none;
+    text-align: center;
 
     -webkit-user-select: none; /* Safari */        
     -moz-user-select: none; /* Firefox */

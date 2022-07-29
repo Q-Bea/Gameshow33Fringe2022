@@ -1,28 +1,22 @@
 <template>
     <v-row>
         <ButtonEmitter
-            v-for="name in sounds"
+            v-for="name in images"
             :key="name"
             :label="`Play: ${name}`"
-            colour="blue lighten-3"
-            eventName="playSound"
+            :colour="name.includes('Reveal') ? 'blue darken-1' : 'blue lighten-3'"
+            eventName="showImage"
             :dataValue="name"
         >
             <div class="text-center">
-                <p>Play:</p>
+                <p>Show:</p>
                 <p>{{name.replace(/(-|(.mp3$))/g, " ")}}</p>
             </div>
         </ButtonEmitter>
-
-        <ButtonEmitter
-            label="Stop Sounds"
-            eventName="stopSound"
-            colour="red lighten-1"
-        />
         
         <ButtonEmitter
-            label="Hide Icon"
-            eventName="hideIcon"
+            label="Hide Image"
+            eventName="hideImage"
             colour="orange lighten-1"
         />
     </v-row>
@@ -34,7 +28,7 @@ export default {
     components: { ButtonEmitter, ButtonEmitter },
     data() {
         return {
-            sounds: []
+            images: []
         }
     },
 
@@ -42,7 +36,7 @@ export default {
 
     async fetch() {
         try {
-            this.sounds = (await this.$axios.$get("/api/getGameAssetNames/NameThatSound/sounds")).names
+            this.images = (await this.$axios.$get("/api/getGameAssetNames/NameThatFish/images")).names
         } catch(e) {
             //Oh well FIXME??
         }

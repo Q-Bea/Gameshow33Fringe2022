@@ -155,14 +155,14 @@ export default class MongoDisplayDataFunctions {
         }
     }
 
-    async setGamesInUse(games) {
+    async setGamesInUse(gamesObj) {
         try {
-            if (Array.isArray(games)) {
+            if (Array.isArray(gamesObj.tech) && Array.isArray(gamesObj.noTech)) {
                 const res = await this.collection.findOneAndUpdate({
                     config: this.configName
                 }, {
                     $set: {
-                        gamesInUse: games
+                        gamesInUse: gamesObj
                     }
                 }, {
                     upsert: true,

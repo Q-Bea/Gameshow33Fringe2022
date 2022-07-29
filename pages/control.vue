@@ -69,6 +69,12 @@
     </v-container>
 </template>
 
+<style>
+* {
+    touch-action: manipulation;
+}
+</style>
+
 <script>
 import ScoreContainer from '@/components/control/ScoreContainer.vue'
 import Status from '~/components/control/panels/Status.vue'
@@ -112,9 +118,7 @@ export default {
 
         try {
             const games = await this.$root.socket.emitP("getGamesInUse");
-            if (Array.isArray(games)) {
-                this.$store.commit("games/set", games);
-            }
+            this.$store.commit("games/set", games);
         } catch(e) {
             //
         }

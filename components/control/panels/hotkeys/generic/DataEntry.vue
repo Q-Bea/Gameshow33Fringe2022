@@ -105,7 +105,7 @@ export default {
                 value: this.data,
                 
                 save: this.save ?? false,
-                writeToDisplay: this.$store.state.display.current
+                writeToDisplay: this.$store.state.display.current?.replace(/ /g, "")
             })
         }
     }

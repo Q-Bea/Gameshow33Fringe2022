@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container fluid style="background-color: black;" class="fill-height">
         <v-slide-y-transition mode="out-in">
             <component 
                 v-bind:is="currentDisplay"
@@ -15,21 +15,32 @@ import Points from "@/components/projector/scenes/points/Points.vue"
 import Blank from "@/components/projector/Blank.vue"
 import StandOnTime from "~/components/projector/games/StandOnTime.vue"
 import NameThatSound from "~/components/projector/games/NameThatSound.vue"
+import Countdown from "~/components/projector/Countdown.vue"
+import GameName from "~/components/projector/scenes/GameName.vue"
+import NameThatFish from "~/components/projector/games/NameThatFish.vue"
 
 const KNOWN_SCENES = [
     "Base", 
     "Points", 
     "Blank",
     "StandOnTime",
-    "NameThatSound"
+    "NameThatSound",
+    "Countdown",
+    "GameName",
+    "NameThatFish"
 ];
 
 export default {
     data() {
         return {
-            currentDisplay: "Base",
+            currentDisplay: "Blank",
         }
     },
+    head: {
+        link: [
+            {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Bebas+Neue"}
+        ]
+    },  
     async created() {
         //Socket vuex bindings
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
@@ -53,25 +64,18 @@ export default {
         }
 
         try {
-            const displays = await this.$root.socket.emitP("getActiveDisplays");
-            if (displays != undefined && KNOWN_SCENES.includes(displays.current)) {
-                this.currentDisplay = displays.current;
+            let displays = await this.$root.socket.emitP("getActiveDisplays");
+            if (displays != undefined && typeof displays.current === "string") {
+                const current = displays.current.replace(/ /g, "");
+                if (KNOWN_SCENES.includes(current)) {
+                    this.currentDisplay = current;
+                }
             }
         } catch (e) {
             //
         }
 
-        //Synchronize on initial hydration, as well as on scene change (above)
-        try {
-            const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.currentDisplay);
-            if (savedEventData != undefined) {
-                this.$nuxt.$emit("displayEventSavedData", savedEventData)
-            }
-        } catch(e) {
-            //
-        }
-
-                this.$root.socket.on("teamsUpdate", (data) => {
+        this.$root.socket.on("teamsUpdate", (data) => {
             if (Array.isArray(data)) {
                 this.$store.commit("teams/setData", data);
             }
@@ -83,8 +87,11 @@ export default {
         })
 
         this.$root.socket.on("activeDisplaysUpdate", data => {
-            if (data != undefined && KNOWN_SCENES.includes(data.current)) {
-                this.currentDisplay = data.current;
+            if (data != undefined && typeof data.current === "string") {
+                const current = data.current.replace(/ /g, "");
+                if (KNOWN_SCENES.includes(current)) {
+                    this.currentDisplay = current;
+                }
             }
         })
 
@@ -111,6 +118,7 @@ export default {
             //So to ensure it gets information when it's ready, the component has to emit
             try {
                 const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.currentDisplay);
+                 //don't need to remove spaces as it's never saved w/ spaces
                 if (savedEventData != undefined) {
                     this.$nuxt.$emit("displayEventSavedData", savedEventData)
                 }
@@ -119,6 +127,6 @@ export default {
         }
     },
 
-    components: { Base, Points, Blank, StandOnTime, NameThatSound }
+    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, NameThatFish }
 }
 </script>

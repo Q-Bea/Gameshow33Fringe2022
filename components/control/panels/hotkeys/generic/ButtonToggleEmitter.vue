@@ -65,7 +65,7 @@ export default {
 
             this.$root.socket.emit("displayEvent", {
                 eventName: this.eventName,
-                writeToDisplay: this.$store.state.display.current,
+                writeToDisplay: this.$store.state.display.current?.replace(/ /g, ""),
                 value: this.getNextValue(),
                 save: true
             })

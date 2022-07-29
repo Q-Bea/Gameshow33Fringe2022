@@ -1,6 +1,5 @@
 <template>
     <div class="blank">
-        <h1 style="color: white; padding-top: 5rem" class="text-center">Name That Sound</h1>
         <audio id="audio-player"
             v-if="playing && soundFile != undefined"
             :src="`assets/games/NameThatSound/sound/${soundFile}`"
@@ -77,7 +76,7 @@ export default {
 
     async fetch() {
         try {
-            this.knownSounds = (await this.$axios.$get("/api/getGameAssetNames/NameThatSound/sound")).names
+            this.knownSounds = (await this.$axios.$get("/api/getGameAssetNames/NameThatSound/sounds")).names
         } catch(e) {
             //Oh well FIXME??
         }

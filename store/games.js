@@ -1,11 +1,18 @@
 export const state = () => ({
-    inUse: []
+    tech: [],
+    noTech: []
 })
 
 export const mutations = {
     set(state, data) {
-        if (Array.isArray(data)) {
-            state.inUse = data;
+        if (data != undefined) {
+            if (Array.isArray(data.tech)) {
+                state.tech = data.tech;
+            }
+
+            if (Array.isArray(data.noTech)) {
+                state.noTech = data.noTech;
+            }
         }
     }
 }

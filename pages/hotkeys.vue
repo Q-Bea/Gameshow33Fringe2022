@@ -26,7 +26,7 @@ export default {
     middleware: "auth",
     computed: {
         currentScene() {
-            return this.$store.state.display.current;
+            return this.$store.state.display.current.replace(/ /g, "");
         }
     },
 

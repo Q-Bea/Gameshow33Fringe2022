@@ -20,21 +20,31 @@
 </template>
 
 <script>
-import Wheel from "./hotkeys/Wheel.vue"
-import StandOnTime from "./hotkeys/StandOnTime.vue"
-import NameThatSound from "./hotkeys/NameThatSound.vue"
+import Wheel from "./hotkeys/Wheel.vue";
+import StandOnTime from "./hotkeys/StandOnTime.vue";
+import NameThatSound from "./hotkeys/NameThatSound.vue";
+import NameThatFish from "./hotkeys/NameThatFish.vue";
+import Countdown from "./hotkeys/Countdown.vue";
+import GameName from "./hotkeys/GameName.vue";
 
 export default {
-    components: { Wheel, StandOnTime, NameThatSound },
+    components: { Wheel, StandOnTime, NameThatSound, Countdown, NameThatFish, GameName },
     computed: {
         currentScene() {
-            return this.$store.state.display.current
+            return this.$store.state.display.current.replace(/ /g, "")
         }
     },
 
     data() {
         return {
-            KNOWN_DISPLAYS: ["Wheel", "StandOnTime", "NameThatSound"]
+            KNOWN_DISPLAYS: [
+                "Wheel", 
+                "StandOnTime", 
+                "NameThatSound", 
+                "NameThatFish",
+                "Countdown",
+                "GameName"
+            ]
         }
     },
 
@@ -68,7 +78,7 @@ export default {
             //Child loading takes a non-deterministic amount of time because it is a dynamic component
             //So to ensure it gets information when it's ready, the component has to emit
             try {
-                const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.$store.state.display.current);
+                const savedEventData = await this.$root.socket.emitP("getSavedDisplayEventData", this.currentScene);
                 if (savedEventData != undefined) {
                     this.$nuxt.$emit("displayEventSavedData", savedEventData)
                 }
