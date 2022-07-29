@@ -45,9 +45,9 @@
     top: 50px;
     border-bottom: 5px double black;
     width: 100%;
-    padding-bottom: 5rem;
+    padding-bottom: 0.8rem;
     text-align: center;
-    font-size: xx-large;
+    font-size: 50px;
 }
 </style>
 
@@ -65,7 +65,8 @@ export default {
             timersRaw: [],
             stoppedTimers: new Set(),
             targetSeconds: undefined,
-            hideTimer: true
+            hideTimer: true,
+            pauseOffsetRaw: 0
         }
     },
 
@@ -89,7 +90,12 @@ export default {
                 seconds = seconds % 60;
 
                 // return `${(minutes < 10 ? "0" : "") + minutes}:${(seconds < 10 ? "0" : "") + seconds}`
-                return `${minutes} minute${minutes === 1 ? "" : "s"} and ${seconds} second${seconds === 1 ? "" : "s"}`
+                const styleParts = [];
+                if (minutes != 0) styleParts.push(`${minutes} minute${minutes === 1 ? "" : "s"}`);
+
+                if (seconds != 0) styleParts.push(`${seconds} second${seconds === 1 ? "" : "s"}`)
+
+                return styleParts.join(" and ")
             }
         }
     },
@@ -107,7 +113,11 @@ export default {
                             this.startTicker()
                         } else {
                             this.timerActive = false;
+
                             this.stopTicker()
+                            
+                            //Support pausing
+                            this.pauseOffsetRaw += (Date.now() - this.startTime);
                         }
 
                         break
@@ -137,6 +147,8 @@ export default {
                         this.stoppedTimers.clear();
 
                         this.timersRaw = [];
+
+                        this.pauseOffsetRaw = 0;
                         this.$nuxt.$emit("sot-tick", this.timersRaw);
                         break;
                 }
@@ -192,7 +204,7 @@ export default {
 
                 this.playersConcat.forEach((player, index) => {
                     if (this.stoppedTimers.has(player + index)) return;
-                    this.timersRaw[index] = Date.now() - this.startTime;
+                    this.timersRaw[index] = (Date.now() - this.startTime) + this.pauseOffsetRaw;
                 });
 
                 this.$nuxt.$emit("sot-tick", this.timersRaw);
