@@ -1,6 +1,6 @@
 <template>
     <v-container fluid>
-        <v-scroll-y-transition mode="out-in">
+        <v-scroll-y-transition mode="out-in" v-if="visible">
             <p 
                 class="countdown" 
                 :key="currentNumber"
@@ -10,6 +10,7 @@
                 v-else
                 src="/assets/scenes/Countdown/tuna.png"
                 contain
+                eager
             />
         </v-scroll-y-transition>
     </v-container>
@@ -28,7 +29,8 @@
 export default {
     data() {
         return {
-            currentNumber: 10
+            currentNumber: 10,
+            visible: true
         }
     },
     created() {
@@ -38,11 +40,16 @@ export default {
             ) {
                 if (this.currentNumber <= 0) return;
                 this.currentNumber--;
+
+                if (this.currentNumber == 0) {
+                    this.visible = false;
+                }
             } else if (
                 data.eventName === "back"
             ) {
                 if (this.currentNumber >= 10) return;
                 this.currentNumber++
+                this.visible = true;
             }
         })
 

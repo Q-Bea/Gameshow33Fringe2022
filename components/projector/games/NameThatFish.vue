@@ -54,7 +54,7 @@ export default {
 
     async fetch() {
         try {
-            this.knownImages = (await this.$axios.$get("/api/getGameAssetNames/NameThatFish/images")).names
+            this.knownImages = (await this.$axios.$get("/api/getDisplayAssetNames/games/NameThatFish/images")).names
         } catch(e) {
             //Oh well FIXME??
         }

@@ -16,6 +16,7 @@
     border: 1px solid;
     border-radius: 10%;
     transition-duration: 0.2s;
+    background-color: white;
 }
 </style>
 
@@ -48,7 +49,7 @@ export default {
 
             let percentRemaining = 1 - (curVal / target);
 
-            if (percentRemaining < -0.40) percentRemaining = -0.40
+            if (percentRemaining < -0.55) percentRemaining = -0.55
 
             return `${(MAX_TRANSLATION * percentRemaining).toFixed(1)}vh`
         }

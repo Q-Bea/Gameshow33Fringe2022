@@ -1,7 +1,7 @@
 <template>
     <v-card 
         height="45vh" 
-        width="auto" 
+        width="55vh"
         elevation="20"
         class="point-module"
     >
@@ -59,6 +59,8 @@
 .point-module {
     padding-left: 30px; 
     padding-right: 30px;
+    margin-left: 3rem;
+    margin-right: 3rem;
     background-color: rgb(245, 250, 255);
 }
 </style>

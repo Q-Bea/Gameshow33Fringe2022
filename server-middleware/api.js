@@ -2,14 +2,15 @@ const app = require('express')()
 
 const fs = require("fs")
 
-app.get('/getGameAssetNames/:game/:type', async (req, res) => {
-    //FIXME need auth?
+app.get("/getDisplayAssetNames/:gameOrScene/:name/:assetType/", (req, res) => {
+    //FIXME needs auth?
     if (
-        typeof req.params.game === "string" && req.params.game.length < 20 &&
-        typeof req.params.type === "string" && req.params.type.length < 20 
+        typeof req.params.name === "string" && req.params.name.length < 20 &&
+        typeof req.params.assetType === "string" && req.params.assetType.length < 20 &&
+        (req.params.gameOrScene === "games" || req.params.gameOrScene === "scenes")
     ) {
         try {
-            const assetNames = fs.readdirSync(process.cwd() + `/static/assets/games/${req.params.game}/${req.params.type}`);
+            const assetNames = fs.readdirSync(process.cwd() + `/static/assets/${req.params.gameOrScene}/${req.params.name}/${req.params.assetType}`);
 
             if (Array.isArray(assetNames)) {
                 res.status(200).json({ok: true, names: assetNames})

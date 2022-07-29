@@ -8,11 +8,11 @@
         style="transition: background-color 0.1s;"
     >
         <slot
-            class="display-name"
+            class="display-name text-center"
         >
         <p 
             v-if='label != undefined' 
-            class="display-name"
+            class="display-name text-center"
         >{{label}}</p>
         </slot>
     </v-card>
@@ -76,12 +76,14 @@ export default {
 </script>
 
 <style scoped>
-.display-name {
+.display-name,
+.display-name * {
     pointer-events: none;
     -webkit-user-select: none; /* Safari */        
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none; /* Standard */
     overflow: scroll;
+    text-align: center;
 }
 </style>

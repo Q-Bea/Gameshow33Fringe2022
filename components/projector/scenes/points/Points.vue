@@ -1,20 +1,17 @@
 <template>
-    <v-row justify="center" class="point-row fill-height">
-        <v-col style="max-width: max-content;">
-            <PointModule
-                v-if="teams[0]"
-                :teamName="teams[0].teamName"
-                :points="teams[0].points"
-                :players="teams[0].players"
-            />
-            <v-spacer style="min-height: 2rem"/>
-            <PointModule
-                v-if="teams[1]"
-                :teamName="teams[1].teamName"
-                :points="teams[1].points"
-                :players="teams[1].players"
-            />
-        </v-col>
+    <v-row justify="center" align="center" class="point-row fill-height">
+        <PointModule
+            v-if="teams[0]"
+            :teamName="teams[0].teamName"
+            :points="teams[0].points"
+            :players="teams[0].players"
+        />
+        <PointModule
+            v-if="teams[1]"
+            :teamName="teams[1].teamName"
+            :points="teams[1].points"
+            :players="teams[1].players"
+        />
     </v-row>
 </template>
 

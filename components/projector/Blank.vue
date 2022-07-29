@@ -12,3 +12,17 @@
     top: 0;
 }
 </style>
+
+<script>
+export default {
+    mounted() {
+        this.$nuxt.$on("displayEvent", (data) => {
+            if (data != undefined) {
+                if (data.eventName === "refreshProjector") {
+                    window.location.reload();
+                }
+            }
+        })
+    }
+}
+</script>

@@ -4,8 +4,13 @@
         <div class="target-line">
             Target<br/>{{stylizedTarget}}
         </div>
+        <div class="segment-rules">
+            <span style="transform: translateY(216px); top: 32vh;"></span>
+            <span style="transform: translateY(216px); top: 22vh;"></span>
+            <span style="transform: translateY(216px); top: 12vh;"></span>
+        </div>
         <v-row justify="center" style="transform: translateY(212px);">
-            <v-row no-gutters style="width: 50%; border-right: 2px dotted" justify="center">
+            <v-row no-gutters style="width: 50%; border-right: 3px dotted black" justify="center">
                 <Timer
                     v-for="(player, index) in teams[0]?.players"
                     :key="player + index"
@@ -48,6 +53,21 @@
     padding-bottom: 0.8rem;
     text-align: center;
     font-size: 50px;
+}
+
+.segment-rules {
+    position: fixed;
+    width: 98vw;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.segment-rules span {
+    border-bottom: 2px dotted grey;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    opacity: 50%;
 }
 </style>
 

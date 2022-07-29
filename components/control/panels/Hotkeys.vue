@@ -26,9 +26,10 @@ import NameThatSound from "./hotkeys/NameThatSound.vue";
 import NameThatFish from "./hotkeys/NameThatFish.vue";
 import Countdown from "./hotkeys/Countdown.vue";
 import GameName from "./hotkeys/GameName.vue";
+import Blank from "./hotkeys/Blank.vue";
 
 export default {
-    components: { Wheel, StandOnTime, NameThatSound, Countdown, NameThatFish, GameName },
+    components: { Wheel, StandOnTime, NameThatSound, Countdown, NameThatFish, GameName, Blank },
     computed: {
         currentScene() {
             return this.$store.state.display.current.replace(/ /g, "")
@@ -43,7 +44,8 @@ export default {
                 "NameThatSound", 
                 "NameThatFish",
                 "Countdown",
-                "GameName"
+                "GameName",
+                "Blank"
             ]
         }
     },

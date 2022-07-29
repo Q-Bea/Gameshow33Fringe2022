@@ -44,6 +44,7 @@ export default {
     async created() {
         //Socket vuex bindings
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
+        this.$root.socket.emit("joinProjectorQueryRoom")
 
         try {
             const teamData = await this.$root.socket.emitP("getTeamsData");

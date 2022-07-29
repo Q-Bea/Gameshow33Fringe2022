@@ -36,6 +36,21 @@
             eventName="blackout"
             colour="red darken-2"
         />
+
+        <ButtonEmitter
+            v-for="sound in knownSounds"
+            :key="sound"
+            colour="blue-grey lighten-1"
+            eventName="playSound"
+            :dataValue="sound"
+        >
+        <div class="text-center">
+            <p>Play Sound:</p>
+            <p>{{sound}}</p>
+        </div>
+        </ButtonEmitter>
+
+
     </v-row>
 </template>
 
@@ -45,7 +60,8 @@ export default {
     data() {
         return {
             techGames: [],
-            noTechGames: []
+            noTechGames: [],
+            knownSounds: []
         };
     },
     created() {
@@ -59,6 +75,13 @@ export default {
             }
         }
         this.$emit("mounted");
+    },
+    async fetch() {
+        try {
+            this.knownSounds = (await this.$axios.$get("/api/getDisplayAssetNames/scenes/GameName/sounds")).names
+        } catch(e) {
+            //Oh well FIXME??
+        }    
     },
     components: { ButtonEmitter }
 }

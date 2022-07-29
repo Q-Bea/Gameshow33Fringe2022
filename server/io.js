@@ -306,8 +306,26 @@ export default function Svc(socket, io) {
         },
 
         //----END DISPLAY EVENT SOCKETS----
-        getNumberOfConnectedSockets() {
-            return Object.keys(io.sockets.sockets).length
+
+        //----START CONNECTION QUERY SOCKETS----
+        async projectorConnected() {
+            if (!authenticate(socket)) {
+                socket.disconnect(true);
+                return
+            };
+
+            try {
+                const projectors = io.sockets.adapter.rooms.get("projectorQuery").size;
+                return projectors != undefined && projectors > 0
+            } catch(e) {
+                //
+            }
+            return false;
+        },
+
+        joinProjectorQueryRoom() {
+            socket.join("projectorQuery")
         }
+        //----END CONNECTION QUERY SOCKETS----
     })
 }

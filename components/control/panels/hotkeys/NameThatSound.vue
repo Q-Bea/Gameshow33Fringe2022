@@ -42,7 +42,7 @@ export default {
 
     async fetch() {
         try {
-            this.sounds = (await this.$axios.$get("/api/getGameAssetNames/NameThatSound/sounds")).names
+            this.sounds = (await this.$axios.$get("/api/getDisplayAssetNames/games/NameThatSound/sounds")).names
         } catch(e) {
             //Oh well FIXME??
         }

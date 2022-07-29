@@ -1,6 +1,7 @@
 <template>
     <v-container fluid>
         <WebsocketDisconnect/>
+        <ProjectorDisconnected/>
 
         <v-container fluid>
             <v-row>
@@ -82,6 +83,7 @@ import Scenes from '~/components/control/panels/Scenes.vue'
 import Games from '~/components/control/panels/Games.vue'
 import Hotkeys from '~/components/control/panels/Hotkeys.vue'
 import WebsocketDisconnect from '~/components/control/WebsocketDisconnect.vue'
+import ProjectorDisconnected from '~/components/control/ProjectorDisconnected.vue'
 export default {
     middleware: 'auth',
     head: {
@@ -144,6 +146,6 @@ export default {
         }
     },
 
-    components: { ScoreContainer, Status, Scenes, Games, Hotkeys, WebsocketDisconnect }
+    components: { ScoreContainer, Status, Scenes, Games, Hotkeys, WebsocketDisconnect, ProjectorDisconnected }
 }
 </script>
