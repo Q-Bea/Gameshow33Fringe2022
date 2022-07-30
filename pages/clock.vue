@@ -46,7 +46,16 @@ export default {
             }
 
             this.clockText = `${hours}:${minutes}${amPm}`
-        }, 1000)
+        }, 1000);
+
+        //Attempt to go fullscreen
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+            el.requestFullscreen().catch(() => {/* */});
+        }
+        else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen().catch(() => {/* */});
+        }
     },
 
     methods: {
