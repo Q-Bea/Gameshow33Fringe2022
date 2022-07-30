@@ -3,6 +3,7 @@ import MongoDisplayDataFunctions from "./display.js";
 import MongoDisplayEventFunctions from "./displayEvent.js";
 import MongoTeamDataFunctions from "./teams.js";
 import MongoWheelDataFunctions from "./wheel.js";
+import MongoKeystoneDataFunctions from "./keystone.js";
 
 export default class MongoInstance {
     connectCalled = false
@@ -23,6 +24,11 @@ export default class MongoInstance {
      * @type {MongoDisplayDataFunctions}
      */
     displayDataFunctions
+
+    /**
+     * @type {MongoKeystoneDataFunctions}
+     */
+    keystoneDataFunctions
 
     /**
      * @type {MongoDisplayEventFunctions}
@@ -54,6 +60,8 @@ export default class MongoInstance {
         this.teamDataFunctions = new MongoTeamDataFunctions(configCollection);
         this.wheelDataFunctions = new MongoWheelDataFunctions(configCollection);
         this.displayDataFunctions = new MongoDisplayDataFunctions(configCollection);
-        this.displayEventFunctions = new MongoDisplayEventFunctions(eventCollection)
+        this.keystoneDataFunctions = new MongoKeystoneDataFunctions(configCollection);
+
+        this.displayEventFunctions = new MongoDisplayEventFunctions(eventCollection);
     }
 }

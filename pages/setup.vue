@@ -8,9 +8,8 @@
         <v-container fluid>
             <v-row>
                 <Teams style="width: 400px;"/>
-                <!-- <Wheel style="width: 400px;"/> -->
                 <Games style="width: 400px;"/>
-                <!-- <Resets style="width: 400px;"/> -->
+                <Keystone style="width: 400px;"/>
             </v-row>
         </v-container>
 
@@ -29,10 +28,9 @@
 
 <script>
 import Teams from "~/components/setup/Teams.vue";
-import Wheel from "~/components/setup/Wheel.vue";
 import Games from "~/components/setup/Games.vue";
 import WebsocketDisconnect from "~/components/control/WebsocketDisconnect.vue";
-import Resets from "~/components/setup/Resets.vue";
+import Keystone from "~/components/setup/Keystone.vue";
 export default {
     middleware: 'auth',
     head: {
@@ -47,6 +45,6 @@ export default {
         this.$root.socket = this.$nuxtSocket({ withCredentials: true });
     },
     
-    components: { Teams, Wheel, Games, WebsocketDisconnect, Resets }
+    components: { Teams, Games, WebsocketDisconnect, Keystone }
 }
 </script>

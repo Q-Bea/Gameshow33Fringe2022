@@ -29,7 +29,7 @@
                     multiple
                     chips
                     v-model="selectedTechGames"
-                    hint="Select which tech games in this show"
+                    hint="Select which tech games are in this show"
                     persistent-hint
                     placeholder="No Games Selected"
                     required

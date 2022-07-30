@@ -23,13 +23,15 @@
 import Wheel from "./hotkeys/Wheel.vue";
 import StandOnTime from "./hotkeys/StandOnTime.vue";
 import NameThatSound from "./hotkeys/NameThatSound.vue";
-import NameThatFish from "./hotkeys/NameThatFish.vue";
+import GuessThatFish from "./hotkeys/GuessThatFish.vue";
 import Countdown from "./hotkeys/Countdown.vue";
 import GameName from "./hotkeys/GameName.vue";
 import Blank from "./hotkeys/Blank.vue";
+import Points from "./hotkeys/Points.vue";
+import ChristianKristen from "./hotkeys/ChristianKristen.vue";
 
 export default {
-    components: { Wheel, StandOnTime, NameThatSound, Countdown, NameThatFish, GameName, Blank },
+    components: { Wheel, StandOnTime, NameThatSound, Countdown, GuessThatFish, GameName, Blank, Points, "ChristianBellorKristenBell": ChristianKristen},
     computed: {
         currentScene() {
             return this.$store.state.display.current.replace(/ /g, "")
@@ -42,10 +44,12 @@ export default {
                 "Wheel", 
                 "StandOnTime", 
                 "NameThatSound", 
-                "NameThatFish",
+                "GuessThatFish",
                 "Countdown",
                 "GameName",
-                "Blank"
+                "Blank",
+                "Points",
+                "ChristianBellorKristenBell"
             ]
         }
     },

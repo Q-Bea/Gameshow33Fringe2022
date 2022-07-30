@@ -307,6 +307,31 @@ export default function Svc(socket, io) {
 
         //----END DISPLAY EVENT SOCKETS----
 
+        //----SET KEYSTONE SOCKETS----
+        async setKeystone(value) {
+            if (!authenticate(socket)) {
+                socket.disconnect(true);
+                return;
+            }
+
+            if (typeof value == "number") {
+                const res = await db.keystoneDataFunctions.setKeystone(value);
+                
+                io.emit("keystoneUpdate", res)
+            }
+        },
+
+        async getKeystone() {
+            try {
+                const res = await db.keystoneDataFunctions.getKeystone();
+                
+                return res;
+            } catch(e) {
+                return;
+            }
+        },
+        //----END KEYSTONE SOCKETS----
+
         //----START CONNECTION QUERY SOCKETS----
         async projectorConnected() {
             if (!authenticate(socket)) {
@@ -325,7 +350,18 @@ export default function Svc(socket, io) {
 
         joinProjectorQueryRoom() {
             socket.join("projectorQuery")
-        }
+        },
         //----END CONNECTION QUERY SOCKETS----
+
+        //----START TIMER PAGE SOCKETS----
+        flashClock() {
+            if (!authenticate(socket)) {
+                socket.disconnect(true);
+                return
+            };
+
+            io.emit("flashClock");
+        }
+        //----END TIMER PAGE SOCKETS----
     })
 }

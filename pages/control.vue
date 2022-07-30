@@ -41,6 +41,18 @@
                                     </v-btn>
                                 </v-card>
                             </v-row>
+
+                            <v-row justify="center">
+                                <v-btn
+                                    relative
+                                    height="50"
+                                    color="red darken-2"
+                                    dark
+                                    @click="flashClock"
+                                >
+                                    <v-icon>mdi-alert-octagram</v-icon>Flash Clock
+                                </v-btn>
+                            </v-row>
                         </v-col>
                     </v-row>
 
@@ -143,6 +155,10 @@ export default {
                 current: this.pending,
                 pending: this.current
             })
+        },
+
+        flashClock() {
+            this.$root.socket.emit("flashClock")
         }
     },
 

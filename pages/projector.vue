@@ -1,9 +1,13 @@
 <template>
-    <v-container fluid style="background-color: black;" class="fill-height">
+    <v-container 
+        fluid 
+        style="background-color: black;" 
+        class="fill-height">
         <v-slide-y-transition mode="out-in">
             <component 
                 v-bind:is="currentDisplay"
                 @mounted="sendHotkeyData"
+                :style="`transform: rotateY(${keystone}deg); transform-style: preserve-3d`"
             />
         </v-slide-y-transition>
     </v-container>
@@ -17,7 +21,8 @@ import StandOnTime from "~/components/projector/games/StandOnTime.vue"
 import NameThatSound from "~/components/projector/games/NameThatSound.vue"
 import Countdown from "~/components/projector/Countdown.vue"
 import GameName from "~/components/projector/scenes/GameName.vue"
-import NameThatFish from "~/components/projector/games/NameThatFish.vue"
+import GuessThatFish from "~/components/projector/games/GuessThatFish.vue"
+import ChristianBellorKristenBell from '~/components/projector/games/ChristianKristen.vue'
 
 const KNOWN_SCENES = [
     "Base", 
@@ -27,13 +32,15 @@ const KNOWN_SCENES = [
     "NameThatSound",
     "Countdown",
     "GameName",
-    "NameThatFish"
+    "GuessThatFish",
+    "ChristianBellorKristenBell"
 ];
 
 export default {
     data() {
         return {
             currentDisplay: "Blank",
+            keystone: 0
         }
     },
     head: {
@@ -75,6 +82,21 @@ export default {
         } catch (e) {
             //
         }
+
+        try {
+            let keystone = await this.$root.socket.emitP("getKeystone");
+            if (typeof keystone === "number") {
+                this.keystone = keystone;
+            }
+        } catch (e) {
+            //
+        }
+
+        this.$root.socket.on("keystoneUpdate", val => {
+            if (typeof val === "number") {
+                this.keystone = val;
+            }
+        })
 
         this.$root.socket.on("teamsUpdate", (data) => {
             if (Array.isArray(data)) {
@@ -128,6 +150,6 @@ export default {
         }
     },
 
-    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, NameThatFish }
+    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, GuessThatFish, ChristianBellorKristenBell}
 }
 </script>

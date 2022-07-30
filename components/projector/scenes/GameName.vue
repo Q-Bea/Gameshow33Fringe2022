@@ -1,7 +1,7 @@
 <template>
     <v-container class="base">
         <v-scroll-y-transition>
-            <div v-if="visible && gameName !== undefined" class="base base-gradient">
+            <div v-if="visible && gameName !== undefined" class="base base-gradient" :key="gameName">
                 <v-card 
                     width="max-content" 
                     max-width="97vw" 
