@@ -40,7 +40,7 @@
 
             <IndexCard
                 description="Open the fullscreen clock which can flash to alert actors"
-                title="Control Panel"
+                title="Clock"
                 icon="mdi-clock"
                 to="clock"
             />
