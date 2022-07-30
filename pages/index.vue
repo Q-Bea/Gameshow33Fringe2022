@@ -10,92 +10,52 @@
         <br/>
 
         <v-row style="justify-content: center;">
-            <v-card
-                width="300"
-                elevation="3"
-                style="margin: 5px;"
-            >
-                <v-card-title>
-                    <v-icon
-                        left
-                    >mdi-laptop
-                    </v-icon>
-                    Control Panel
-                </v-card-title>
-                <v-card-text>
-                    Control the show visuals and sound (login required)
-                </v-card-text>
-                <v-card-actions style="justify-content: center;">
-                    <v-btn to="/control" text>Launch</v-btn>
-                </v-card-actions>
-            </v-card>
+            <IndexCard
+                description="Control the show visuals and sound (login required)"
+                title="Control Panel"
+                icon="mdi-laptop"
+                to="control"
+            />
 
-            <v-card
-                width="300"
-                elevation="3"
-                style="margin: 5px;"
-            >
-                <v-card-title>
-                    <v-icon left>mdi-keyboard</v-icon>
-                    Hotkeys
-                </v-card-title>
+            <IndexCard
+                description="Connect to the control panel with a screen just for quick-fire triggers (login required)"
+                title="Hotkeys"
+                icon="mdi-keyboard"
+                to="hotkeys"
+            />
 
-                <v-card-text>
-                    Connect to the control panel with a screen just for quick-fire triggers (login required)
-                </v-card-text>
+            <IndexCard
+                description="Configure settings like player names or other data that changes night-to-night"
+                title="Setup"
+                icon="mdi-setup"
+                to="setup"
+            />
 
-                <v-card-actions style="justify-content: center;">
-                    <v-btn to="/hotkeys" text>Launch</v-btn>
-                </v-card-actions>
-            </v-card>
+            <IndexCard
+                description="Open the projection screen which display content chosen by the controller"
+                title="Projector"
+                icon="mdi-projector"
+                to="projector"
+            />
 
-            <v-card
-                width="300"
-                elevation="3"
-                style="margin: 5px;"
-            >
-                <v-card-title>
-                    <v-icon left>mdi-cog</v-icon>
-                    Setup
-                </v-card-title>
-
-                <v-card-text>
-                    Configure settings like player names or other data that changes night-to-night
-                </v-card-text>
-
-                <v-card-actions style="justify-content: center;">
-                    <v-btn to="/setup" text>Launch</v-btn>
-                </v-card-actions>
-            </v-card>
-
-            <v-card
-                width="300"
-                elevation="3"
-                style="margin: 5px;"
-            >
-                <v-card-title>
-                    <v-icon left>mdi-projector</v-icon>
-                    Projector
-                </v-card-title>
-
-                <v-card-text>
-                    Open the projection screen which display content chosen by the controller
-                </v-card-text>
-
-                <v-card-actions style="justify-content: center;">
-                    <v-btn to="/projector" text>Launch</v-btn>
-                </v-card-actions>
-            </v-card>
+            <IndexCard
+                description="Open the fullscreen clock which can flash to alert actors"
+                title="Control Panel"
+                icon="mdi-clock"
+                to="clock"
+            />
         </v-row>
     </v-container>
 </template>
 
 <script>
+import IndexCard from '~/components/indexCard.vue';
 
 export default {
     head: {
         title: "Game Show 33 | Home"
-    }
+    },
+    components: { IndexCard }
 }
 </script>
 
