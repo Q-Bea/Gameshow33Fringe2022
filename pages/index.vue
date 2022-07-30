@@ -27,7 +27,7 @@
             <IndexCard
                 description="Configure settings like player names or other data that changes night-to-night"
                 title="Setup"
-                icon="mdi-setup"
+                icon="mdi-cog"
                 to="setup"
             />
 
