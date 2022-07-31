@@ -3,6 +3,38 @@
         <v-row align="center" justify="center">
             <p class="clock-text">{{clockText}}</p>
         </v-row>
+
+        <v-dialog width="300" v-model="dialog" dark>
+            <v-card>
+                <v-card-title>
+                Enable Screen Lock?
+                </v-card-title>
+
+                <v-card-text>
+                This will prevent your screen from going to sleep while this tab is active
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="success"
+                    text
+                    @click="dialog = false; enableInsomnia()"
+                >
+                    Enable
+                </v-btn>
+                <v-btn
+                    color="error"
+                    text
+                    @click="dialog = false"
+                >
+                    Cancel
+                </v-btn>
+                </v-card-actions>
+            </v-card>        
+        </v-dialog>
     </v-container>
 </template>
 
@@ -20,7 +52,8 @@ export default {
     data() {
         return {
             clockText: "--:--",
-            backgroundColor: "black"
+            backgroundColor: "black",
+            dialog: true
         }
     },
 
@@ -34,7 +67,6 @@ export default {
     },
 
     mounted() {
-        this.vueInsomnia().on(); //Prevent screen from sleeping
         setInterval(() => {
             const date = new Date(Date.now());
 
@@ -43,11 +75,13 @@ export default {
             let amPm = "am"
 
             if (hours > 11) {
-                amPm = "pm"
-                hours -= 12
+                if (hours !== 24) amPm = "pm"
+                if (hours > 12) hours -= 12
             }
 
-            this.clockText = `${hours}:${minutes}${amPm}`
+            const textMinutes = (minutes < 10 ? "0" : "") + minutes
+
+            this.clockText = `${hours}:${textMinutes}${amPm}`
         }, 1000);
 
         //Attempt to go fullscreen
@@ -61,6 +95,10 @@ export default {
     },
 
     methods: {
+        enableInsomnia() {
+            this.vueInsomnia().on();
+        },
+        
         async flash(numberOfTimes) {
             this.backgroundColor = "red";
 
