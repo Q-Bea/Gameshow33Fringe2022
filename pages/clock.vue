@@ -26,6 +26,7 @@ export default {
 
     created() {
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
+        this.$root.socket.emit("joinQueryRoom", "clock")
 
         this.$root.socket.on("flashClock", () => {
             this.flash(10);
@@ -33,6 +34,7 @@ export default {
     },
 
     mounted() {
+        this.vueInsomnia().on(); //Prevent screen from sleeping
         setInterval(() => {
             const date = new Date(Date.now());
 

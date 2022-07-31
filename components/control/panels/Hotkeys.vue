@@ -28,13 +28,14 @@ import Countdown from "./hotkeys/Countdown.vue";
 import GameName from "./hotkeys/GameName.vue";
 import Blank from "./hotkeys/Blank.vue";
 import Points from "./hotkeys/Points.vue";
-import ChristianKristen from "./hotkeys/ChristianKristen.vue";
+import ChristianBellorKristenBell from "./hotkeys/ChristianKristen.vue";
+import Landlords3Things from "./hotkeys/Landlords3Things.vue";
 
 export default {
-    components: { Wheel, StandOnTime, NameThatSound, Countdown, GuessThatFish, GameName, Blank, Points, "ChristianBellorKristenBell": ChristianKristen},
+    components: { Wheel, StandOnTime, NameThatSound, Countdown, GuessThatFish, GameName, Blank, Points, ChristianBellorKristenBell, Landlords3Things},
     computed: {
         currentScene() {
-            return this.$store.state.display.current.replace(/ /g, "")
+            return this.$store.state.display.current.replace(/ |'/g, "")
         }
     },
 
@@ -49,7 +50,8 @@ export default {
                 "GameName",
                 "Blank",
                 "Points",
-                "ChristianBellorKristenBell"
+                "ChristianBellorKristenBell",
+                "Landlords3Things"
             ]
         }
     },

@@ -333,23 +333,27 @@ export default function Svc(socket, io) {
         //----END KEYSTONE SOCKETS----
 
         //----START CONNECTION QUERY SOCKETS----
-        async projectorConnected() {
+        async queryRoomConnections(roomName) {
             if (!authenticate(socket)) {
                 socket.disconnect(true);
                 return
             };
 
+            if (typeof roomName !== "string") return undefined;
+
             try {
-                const projectors = io.sockets.adapter.rooms.get("projectorQuery").size;
-                return projectors != undefined && projectors > 0
+                const clients = io.sockets.adapter.rooms.get(`query-${roomName.toLowerCase()}`).size;
+                return clients != undefined && clients > 0
             } catch(e) {
                 //
             }
             return false;
         },
 
-        joinProjectorQueryRoom() {
-            socket.join("projectorQuery")
+        joinQueryRoom(roomName) {
+            if (typeof roomName === "string") {
+                socket.join(`query-${roomName}`)
+            }
         },
         //----END CONNECTION QUERY SOCKETS----
 

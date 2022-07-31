@@ -23,6 +23,7 @@ import Countdown from "~/components/projector/Countdown.vue"
 import GameName from "~/components/projector/scenes/GameName.vue"
 import GuessThatFish from "~/components/projector/games/GuessThatFish.vue"
 import ChristianBellorKristenBell from '~/components/projector/games/ChristianKristen.vue'
+import Landlords3Things from "~/components/projector/games/Landlords3Things.vue"
 
 const KNOWN_SCENES = [
     "Base", 
@@ -33,9 +34,11 @@ const KNOWN_SCENES = [
     "Countdown",
     "GameName",
     "GuessThatFish",
-    "ChristianBellorKristenBell"
+    "ChristianBellorKristenBell",
+    "Landlord's3Things"
 ];
 
+import vueInsomnia from "vue-insomnia";
 export default {
     data() {
         return {
@@ -51,7 +54,7 @@ export default {
     async created() {
         //Socket vuex bindings
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
-        this.$root.socket.emit("joinProjectorQueryRoom")
+        this.$root.socket.emit("joinQueryRoom", "projector")
 
         try {
             const teamData = await this.$root.socket.emitP("getTeamsData");
@@ -126,6 +129,8 @@ export default {
     },
 
     mounted() {
+        this.vueInsomnia().on(); //Prevent screen from sleeping
+
         const el = document.documentElement;
         if (el.requestFullscreen) {
             el.requestFullscreen().catch(() => {/* */});
@@ -146,10 +151,11 @@ export default {
                     this.$nuxt.$emit("displayEventSavedData", savedEventData)
                 }
             } catch(e) {
+                //
             }
         }
     },
 
-    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, GuessThatFish, ChristianBellorKristenBell}
+    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, GuessThatFish, ChristianBellorKristenBell, "Landlord's3Things": Landlords3Things}
 }
 </script>
