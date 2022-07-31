@@ -67,6 +67,15 @@ export default {
     },
 
     mounted() {
+        //Detect screen turn off
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState == "hidden") {
+                this.vueInsomnia().off();
+            } else {
+                this.dialog = true;
+            }
+        })
+
         setInterval(() => {
             const date = new Date(Date.now());
 
