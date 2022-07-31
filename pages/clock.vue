@@ -71,8 +71,11 @@ export default {
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState == "hidden") {
                 this.vueInsomnia().off();
+                this.$root.socket.disconnect();
             } else {
                 this.dialog = true;
+                this.$root.socket.connect();
+                this.$root.socket.emit("joinQueryRoom", "clock")
             }
         })
 
@@ -93,19 +96,25 @@ export default {
             this.clockText = `${hours}:${textMinutes}${amPm}`
         }, 1000);
 
-        //Attempt to go fullscreen
-        const el = document.documentElement;
-        if (el.requestFullscreen) {
-            el.requestFullscreen().catch(() => {/* */});
-        }
-        else if (el.webkitRequestFullscreen) {
-            el.webkitRequestFullscreen().catch(() => {/* */});
-        }
+        this.fullscreen()
     },
 
     methods: {
         enableInsomnia() {
             this.vueInsomnia().on();
+
+            this.fullscreen()
+        },
+
+        fullscreen() {
+            //Attempt to go fullscreen
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(() => {/* */});
+            }
+            else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen().catch(() => {/* */});
+            }
         },
         
         async flash(numberOfTimes) {
