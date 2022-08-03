@@ -1,7 +1,15 @@
 <template>
     <v-container fluid class="fill-height base" :style="`background-color: ${backgroundColor}`">
         <v-row align="center" justify="center">
-            <p class="clock-text">{{clockText}}</p>
+            <p 
+                class="clock-text"
+                v-if="!cheatHide"
+            >{{clockText}}</p>
+            <p
+                v-else
+                class="clock-text cheat"
+            >No Cheating (Rob)
+            </p>
         </v-row>
 
         <v-dialog width="300" v-model="dialog" dark>
@@ -45,6 +53,10 @@
     width: auto;
     display: flex;
 }
+
+.clock-text.cheat {
+    font-size: 11vw
+}
 </style>
 
 <script>
@@ -53,17 +65,39 @@ export default {
         return {
             clockText: "--:--",
             backgroundColor: "black",
-            dialog: true
+            dialog: true,
+            cheatHide: false
         }
     },
 
-    created() {
+    async created() {
         this.$root.socket = this.$nuxtSocket({withCredentials: true})
         this.$root.socket.emit("joinQueryRoom", "clock")
 
         this.$root.socket.on("flashClock", () => {
             this.flash(10);
         })
+
+        this.$root.socket.on("activeDisplaysUpdate", data => {
+            console.log(data)
+            if (data?.current === "Stand On Time") {
+                this.cheatHide = true;
+            } else {
+                this.cheatHide = false;
+            }
+        })
+
+        try {
+            const displays = await this.$root.socket.emitP("getActiveDisplays");
+
+            if (displays?.current === "Stand On Time") {
+                this.cheatHide = true;
+            } else {
+                this.cheatHide = false;
+            }
+        } catch(e) {
+            //
+        }
     },
 
     mounted() {
