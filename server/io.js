@@ -108,6 +108,27 @@ export default function Svc(socket, io) {
             }
         },
 
+        async setValidGames(payload) {
+            if (!authenticate(socket)) {
+                socket.disconnect(true);
+                return;
+            };
+
+            try {
+                if (!payload) return;
+    
+                const res = await db.displayDataFunctions.setValidGames({
+                    tech: payload.tech, 
+                    noTech: payload.noTech
+                });
+
+    
+                io.emit("validDisplaysUpdate", res)
+            } catch(e) {
+                return;
+            }
+        },
+
         async getValidGames() {
             try {
                 const res = await db.displayDataFunctions.getValidGames();

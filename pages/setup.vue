@@ -6,10 +6,10 @@
         <br/>
 
         <v-container fluid>
-            <v-row>
+            <v-row justify="center">
                 <Teams style="width: 400px;"/>
                 <Games style="width: 400px;"/>
-                <Keystone style="width: 400px;"/>
+                <ValidGames style="width: 600px"/>
             </v-row>
         </v-container>
 
@@ -31,6 +31,7 @@ import Teams from "~/components/setup/Teams.vue";
 import Games from "~/components/setup/Games.vue";
 import WebsocketDisconnect from "~/components/control/WebsocketDisconnect.vue";
 import Keystone from "~/components/setup/Keystone.vue";
+import ValidGames from "~/components/setup/ValidGames.vue";
 export default {
     middleware: 'auth',
     head: {
@@ -45,6 +46,6 @@ export default {
         this.$root.socket = this.$nuxtSocket({ withCredentials: true });
     },
     
-    components: { Teams, Games, WebsocketDisconnect, Keystone }
+    components: { Teams, Games, WebsocketDisconnect, Keystone, ValidGames }
 }
 </script>

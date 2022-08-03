@@ -89,6 +89,43 @@ export default class MongoDisplayDataFunctions {
         }
     }
 
+    async setValidGames(data) {
+        try {
+            if (data == undefined) throw Error();
+        
+            const payload = {};
+
+            if (Array.isArray(data.tech)) {
+                payload["validDisplays.games.tech"] = data.tech
+            }
+
+            if (Array.isArray(data.noTech)) {
+                payload["validDisplays.games.noTech"] = data.noTech
+            }
+            const res = await this.collection.findOneAndUpdate({
+                config: this.configName
+            }, {
+                $set: payload
+            }, {
+                upsert: true,
+                projection: {
+                    "_id": 0,
+                    "validDisplays": 1
+                },
+                returnDocument: "after"
+            })
+
+            if (res.ok) {
+                return res.value.validDisplays;
+            }
+
+            throw Error();
+        } catch(e) {
+            console.error("[MONGO] Failed get to set valid games");
+            return undefined;
+        }
+    }
+
     async getAllKnownDisplays() {
         try {
             const res = await this.collection.findOne({

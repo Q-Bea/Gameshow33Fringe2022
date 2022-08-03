@@ -2,10 +2,14 @@
     <v-card
         elevation="5"
         max-width="50vw"
+        max-height="70vh"
+        style="overflow-y: scroll;"
     >
         <v-card-title>
-            Games in Use
+            Valid Games
         </v-card-title>
+
+        <v-card-text>Enter the list of games that can be used for any show</v-card-text>
 
         <v-form
             v-model="valid"
@@ -23,19 +27,19 @@
                     >Data updated from other client</v-alert>
                 </v-slide-y-transition>
 
-                <v-select
-                    :items="techGameOptions"
+                <!-- The available options should be from "games in use" -->
+                <v-combobox
+                    outlined
                     label="Tech Games"
-                    multiple
-                    chips
-                    v-model="selectedTechGames"
-                    hint="Select which tech games are in this show"
+                    hint="Type the title of a new game, or delete existing ones"
                     persistent-hint
-                    placeholder="No Games Selected"
+                    clearable
+                    small-chips
+                    :items="techGamesInUse"
                     required
                     :rules="gameRules"
-                    solo
-                    clearable
+                    v-model="techGames"
+                    multiple
                 >
                     <template v-slot:selection="data">
                         <v-chip
@@ -44,44 +48,47 @@
                         :input-value="data.selected"
                         :disabled="data.disabled"
                         @click:close="data.parent.selectItem(data.item)"
-                        :color="!techGames.includes(data.item) ? 'red lighten-1' : ''"
                         close
+                        :color="techGamesInUse.includes(data.item) ? 'green lighten-1' : ''"
                         >
                         {{ data.item }}
                         </v-chip>
                     </template>
-                </v-select>
-
-                <v-select
-                    :items="noTechGameOptions"
-                    label="No Tech Games"
-                    multiple
-                    chips
-                    v-model="selectedNoTechGames"
-                    hint="Select which no-tech games are in this show"
-                    persistent-hint
-                    placeholder="No Games Selected"
-                    required
-                    :rules="gameRules"
-                    solo
-                    clearable
-                >
-                    <template v-slot:selection="data">
-                        <v-chip
-                        :key="JSON.stringify(data.item)"
-                        v-bind="data.attrs"
-                        :input-value="data.selected"
-                        :disabled="data.disabled"
-                        @click:close="data.parent.selectItem(data.item)"
-                        :color="!noTechGames.includes(data.item) ? 'red lighten-1' : ''"
-                        close
-                        >
-                        {{ data.item }}
-                        </v-chip>
-                    </template>
-                </v-select>
+                </v-combobox>
 
                 <br/>
+
+                <v-combobox
+                    outlined
+                    label="No-Tech games"
+                    hint="Type the title of a new game, or delete existing ones"
+                    persistent-hint
+                    clearable
+                    small-chips
+                    :items="noTechGamesInUse"
+                    required
+                    :rules="gameRules"
+                    v-model="noTechGames"
+                    multiple
+                >
+                    <template v-slot:selection="data">
+                        <v-chip
+                        :key="JSON.stringify(data.item)"
+                        v-bind="data.attrs"
+                        :input-value="data.selected"
+                        :disabled="data.disabled"
+                        @click:close="data.parent.selectItem(data.item)"
+                        close
+                        :color="noTechGamesInUse.includes(data.item) ? 'green lighten-1' : ''"
+                        >
+                        {{ data.item }}
+                        </v-chip>
+                    </template>
+                </v-combobox>
+
+                <br/>
+
+                <p>Note: Modifications will not appear in the "Games in Use" section until you press update</p>
 
                 <v-btn 
                     @click="updateGames" 
@@ -97,20 +104,12 @@
 
 <script>
 export default {
-    computed: {
-        techGameOptions() {
-            return this.techGames.concat(this.selectedTechGames);
-        },
-        noTechGameOptions() {
-            return this.noTechGames.concat(this.selectedNoTechGames);
-        }
-    },
     data() {
         return {
             techGames: [],
             noTechGames: [],
-            selectedTechGames: [],
-            selectedNoTechGames: [],
+            techGamesInUse: [],
+            noTechGamesInUse: [],
             colour: "primary",
             disabled: false,
             valid: false,
@@ -134,32 +133,39 @@ export default {
                     this.noTechGames = games.noTech;
                 }
             }
-
         } catch (e) {
             //
         }
 
         try {
             const games = await this.$root.socket.emitP("getGamesInUse");
-            this.incomingData(games)
-        } catch (e) {
-            //
-        }
-
-        this.$root.socket.on("validDisplaysUpdate", (displays) => {
-            if (displays?.games != undefined) {
-                if (Array.isArray(displays.games.tech)) {
-                    this.techGames = displays.games.tech;
+            if (games != undefined) {
+                if (Array.isArray(games.tech)) {
+                    this.techGamesInUse = games.tech;
                 }
 
-                if (Array.isArray(displays.games.noTech)) {
-                    this.noTechGames = displays.games.noTech;
+                if (Array.isArray(games.noTech)) {
+                    this.noTechGamesInUse = games.noTech;
+                }
+            }        
+        } catch (e) {
+                //
+        }
+
+        this.$root.socket.on("gamesInUseUpdate", (games) => {
+            if (games != undefined) {
+                if (Array.isArray(games.tech)) {
+                    this.techGamesInUse = games.tech;
+                }
+
+                if (Array.isArray(games.noTech)) {
+                    this.noTechGamesInUse = games.noTech;
                 }
             }
         })
 
-        this.$root.socket.on("gamesInUseUpdate", (games) => {
-            if (this.incomingData(games)) {             
+        this.$root.socket.on("validDisplaysUpdate", (displays) => {
+            if (this.incomingData(displays.games)) {             
                 if (this.loading) {
                     this.loading = false;
                     this.disabled = false;
@@ -183,15 +189,15 @@ export default {
 
     methods: {
         incomingData(games) {
-            if (games != undefined) {
+            if (games) {
                 let changed = false;
                 if (Array.isArray(games.tech)) {
-                    this.selectedTechGames = games.tech;
+                    this.techGames = games.tech;
                     changed = true;
                 }
 
                 if (Array.isArray(games.noTech)) {
-                    this.selectedNoTechGames = games.noTech;
+                    this.noTechGames = games.noTech;
                     changed = true;
                 }
 
@@ -204,9 +210,9 @@ export default {
             this.loading = true;
             this.disabled = true;
 
-            this.$root.socket.emit("setGamesInUse", {
-                tech: this.selectedTechGames,
-                noTech: this.selectedNoTechGames
+            this.$root.socket.emit("setValidGames", {
+                tech: this.techGames,
+                noTech: this.noTechGames
             })
         }
     }
