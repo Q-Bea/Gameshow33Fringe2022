@@ -30,9 +30,10 @@ import Blank from "./hotkeys/Blank.vue";
 import Points from "./hotkeys/Points.vue";
 import ChristianBellorKristenBell from "./hotkeys/ChristianKristen.vue";
 import Landlords3Things from "./hotkeys/Landlords3Things.vue";
+import SlapDicks from "./hotkeys/SlapDicks.vue";
 
 export default {
-    components: { Wheel, StandOnTime, NameThatSound, Countdown, GuessThatFish, GameName, Blank, Points, ChristianBellorKristenBell, Landlords3Things},
+    components: { Wheel, StandOnTime, NameThatSound, Countdown, GuessThatFish, GameName, Blank, Points, ChristianBellorKristenBell, Landlords3Things, SlapDicks},
     computed: {
         currentScene() {
             return this.$store.state.display.current.replace(/ |'/g, "")
@@ -51,7 +52,8 @@ export default {
                 "Blank",
                 "Points",
                 "ChristianBellorKristenBell",
-                "Landlords3Things"
+                "Landlords3Things",
+                "SlapDicks"
             ]
         }
     },

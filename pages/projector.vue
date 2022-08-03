@@ -24,6 +24,7 @@ import GameName from "~/components/projector/scenes/GameName.vue"
 import GuessThatFish from "~/components/projector/games/GuessThatFish.vue"
 import ChristianBellorKristenBell from '~/components/projector/games/ChristianKristen.vue'
 import Landlords3Things from "~/components/projector/games/Landlords3Things.vue"
+import SlapDicks from "~/components/projector/games/SlapDicks.vue"
 
 const KNOWN_SCENES = [
     "Base", 
@@ -35,10 +36,10 @@ const KNOWN_SCENES = [
     "GameName",
     "GuessThatFish",
     "ChristianBellorKristenBell",
-    "Landlord's3Things"
+    "Landlords3Things",
+    "SlapDicks"
 ];
 
-import vueInsomnia from "vue-insomnia";
 export default {
     data() {
         return {
@@ -65,19 +66,19 @@ export default {
             //
         }
 
-        try {
-            const options = await this.$root.socket.emitP("getWheelOptions");
-            if (Array.isArray(options)) {
-                this.$store.commit("wheel/setOptions", options);
-            }
-        } catch (e) {
-            //
-        }
+        // try {
+        //     const options = await this.$root.socket.emitP("getWheelOptions");
+        //     if (Array.isArray(options)) {
+        //         this.$store.commit("wheel/setOptions", options);
+        //     }
+        // } catch (e) {
+        //     //
+        // }
 
         try {
             let displays = await this.$root.socket.emitP("getActiveDisplays");
             if (displays != undefined && typeof displays.current === "string") {
-                const current = displays.current.replace(/ /g, "");
+                const current = displays.current.replace(/ |'/g, "");
                 if (KNOWN_SCENES.includes(current)) {
                     this.currentDisplay = current;
                 }
@@ -114,7 +115,7 @@ export default {
 
         this.$root.socket.on("activeDisplaysUpdate", data => {
             if (data != undefined && typeof data.current === "string") {
-                const current = data.current.replace(/ /g, "");
+                const current = data.current.replace(/ |'/g, "");
                 if (KNOWN_SCENES.includes(current)) {
                     this.currentDisplay = current;
                 }
@@ -154,6 +155,6 @@ export default {
         }
     },
 
-    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, GuessThatFish, ChristianBellorKristenBell, "Landlord's3Things": Landlords3Things}
+    components: { Base, Points, Blank, StandOnTime, NameThatSound, Countdown, GameName, GuessThatFish, ChristianBellorKristenBell, Landlords3Things, SlapDicks}
 }
 </script>
