@@ -6,7 +6,7 @@
                 :key="value"
                 :src="`assets/games/ChristianKristen/images/${files[value]}`"
                 contain
-                max-height="95vh"
+                max-height="90vh"
             />
         </v-scroll-y-transition>
     </v-container>
@@ -28,7 +28,6 @@ export default {
     },
     created() {
         this.$nuxt.$on("displayEvent", (data) => {
-            console.log(data)
             if (data != undefined) {
                 switch(data.eventName) {
                     case "show":
