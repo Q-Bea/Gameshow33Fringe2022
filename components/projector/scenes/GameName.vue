@@ -52,7 +52,6 @@ export default {
                 case "playSound":
                     if (typeof data.value === "string" && this.knownSounds.includes(data.value)) {
                         this.soundFile = data.value
-                        console.log(this.soundFile)
                     }
                     break
             }

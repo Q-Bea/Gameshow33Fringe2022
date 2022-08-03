@@ -60,7 +60,6 @@ export default {
         click() {
             if (!this.eventName) return;
 
-            console.log("emit")
             this.$root.socket.emit("displayEvent", {
                 eventName: this.eventName,
                 value: this.dataValue ?? undefined,
