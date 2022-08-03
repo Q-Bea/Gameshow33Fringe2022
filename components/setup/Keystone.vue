@@ -1,3 +1,5 @@
+<!-- Deprecated (math is hard and not worth it right now) -->
+
 <template>
     <v-card
         elevation="5"
