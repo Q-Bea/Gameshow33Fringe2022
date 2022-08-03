@@ -20,6 +20,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    z-index: 1001;
 }
 </style>
 
@@ -51,7 +52,7 @@ export default {
                     })
                 }
                 catch (e) {
-                    //
+                    console.log(e)
                 }
             }
 
