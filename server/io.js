@@ -36,7 +36,7 @@ YaZ3zwoOQNRVXEQ7ea8ZakOd24G5ZR3jDg==
 /**
  * 
  * @param {*} socket 
- * @returns -1 if no cookie, false if no auth, true if auth
+ * @returns -1 if no cookie, false (0) if no auth, true (1) if auth
  */
 function authenticate(socket) {
     if (OFFLINE_MODE) return true;
@@ -48,12 +48,10 @@ function authenticate(socket) {
     
             if (split.length > 0) {
                 const find = split.find(part => part.trim().startsWith("auth._token.auth0"));
-                
                 if (find != undefined) {
                     const rel = find.split("=");
                     
                     const res = jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
-                    console.log(process.env.AUTH0_DOMAIN_NAME);
                     return res.iss === process.env.AUTH0_DOMAIN_NAME
                     //If we made it here, the token is valid
                     //(jwt produces errors if invalid)
@@ -62,32 +60,32 @@ function authenticate(socket) {
         }
         return -1;
     } catch(e) {
-        return false;
+        return -1;
+    }
+}
+
+function authCheck(socket) {
+    const authRes = authenticate(socket)
+    switch (authRes) {
+        case -1: 
+            return false
+        case 0: 
+        case false:
+            socket.disconnect(true);
+            return false;
+        case 1: 
+        case true:
+            return true;
+        default:
+            return false;
     }
 }
 
 export default function Svc(socket, io) {
     return Object.freeze({
-        async authCheck() {
-            const authRes = authenticate(socket)
-            switch (authRes) {
-                case -1: 
-                    console.log("ho")
-                    return false
-                case 0: 
-                    socket.disconnect(true);
-                    return false;
-                case 1: 
-                    console.log("hi");
-                    return true;
-                default:
-                    return false;
-            }
-        },
-
         //----DISPLAY DATA SOCKET----
         async setActiveDisplays(payload) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (!payload) return;
 
@@ -130,7 +128,7 @@ export default function Svc(socket, io) {
         },
 
         async setValidGames(payload) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             try {
                 if (!payload) return;
@@ -168,7 +166,7 @@ export default function Svc(socket, io) {
         },
 
         async setGamesInUse(gameObj) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (gameObj == undefined || typeof gameObj !== "object") return;
 
@@ -196,7 +194,7 @@ export default function Svc(socket, io) {
              *  }
              */
 
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (Array.isArray(payload.teams)) {
                 const res = await db.teamDataFunctions.setTeams(payload.teams, payload.resetScores);
@@ -206,7 +204,7 @@ export default function Svc(socket, io) {
         },
 
         async resetPlayerPoints() {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             const res = await db.teamDataFunctions.reset(true);
 
@@ -214,7 +212,7 @@ export default function Svc(socket, io) {
         },
 
         async addPlayerPoints(payload) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (payload && 
                 payload.points && 
@@ -253,7 +251,7 @@ export default function Svc(socket, io) {
 
         //----WHEEL SOCKETS----
         async setWheelOptions(options) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (Array.isArray(options)) {
                 const res = await db.wheelDataFunctions.setWheelOptions(options);
@@ -288,7 +286,7 @@ export default function Svc(socket, io) {
         */
         async displayEvent(payload) {
             try {
-                if (!this.authCheck()) return;
+                if (!authCheck(socket)) return;
     
                 if (typeof payload === "object") {
                     if (payload.eventName == undefined) return;
@@ -330,7 +328,7 @@ export default function Svc(socket, io) {
 
         //----SET KEYSTONE SOCKETS----
         async setKeystone(value) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (typeof value == "number") {
                 const res = await db.keystoneDataFunctions.setKeystone(value);
@@ -352,7 +350,7 @@ export default function Svc(socket, io) {
 
         //----START CONNECTION QUERY SOCKETS----
         async queryRoomConnections(roomName) {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             if (typeof roomName !== "string") return undefined;
 
@@ -374,7 +372,7 @@ export default function Svc(socket, io) {
 
         //----START TIMER PAGE SOCKETS----
         flashClock() {
-            if (!this.authCheck()) return;
+            if (!authCheck(socket)) return;
 
             io.emit("flashClock");
         }
