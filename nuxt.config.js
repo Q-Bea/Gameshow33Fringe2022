@@ -68,7 +68,7 @@ export default {
       auth0: {
         domain: process.env.AUTH0_DOMAIN_NAME,
         clientId: process.env.AUTH0_CLIENT_ID,
-        audience: process.env.HOSTNAME ?? `http://localhost:${process.env.PORT ?? 3000}`
+        audience: `https://${process.env.AUTH0_DOMAIN_NAME}/api/v2/`
       }
     }
   },
