@@ -9,29 +9,15 @@ const OFFLINE_MODE = false;
 
 import jwt from "jsonwebtoken";
 import MongoInstance from "./mongo";
+import axios from "axios"
 const db = new MongoInstance();
 db.awaitConnect();
 
-// signingPub is from advanced settings in Auth0
-const signingPub = `-----BEGIN CERTIFICATE-----
-MIIDFTCCAf2gAwIBAgIJeA7dWDTL9KLgMA0GCSqGSIb3DQEBCwUAMCgxJjAkBgNV
-BAMTHXNob3djYXNlLWczM2RlbW8udXMuYXV0aDAuY29tMB4XDTIzMDYxNjIyNTQ0
-MFoXDTM3MDIyMjIyNTQ0MFowKDEmMCQGA1UEAxMdc2hvd2Nhc2UtZzMzZGVtby51
-cy5hdXRoMC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCLg5za
-bU0v4FNokiokfZpF8bDjiV9sGHiwCpTMfLfD/KRES2DQPolhQfXT5EjdeMxEWfLh
-KVutfEA3ejvg+Wkik/jlY4m+9xmO/ewK9u0qyZHZ071P5BeH91Zj59ZWhQiXn0Yg
-8VbUv2bY+OeUkZ4/ottZpSs9tbnKJX6ZdVI2ct383wG1Xij6mtV0BtQ6i10WubpG
-OjtXWpD5IM/0Ig/fyC9DbsPszudj7mviRA7J0xZUyd6ZFSYVACErr1yG0z6mt9e3
-Q3N9g5NWDjVly+m/GurNl8YgHebJ1jjXz9Oz0uxPxNx/L8CCQqy5M+VzCxzsHEX9
-Eonf8E/tMOK7hU0pAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYE
-FMMy24QdnsBw9kGYpG6lHhLFhWj6MA4GA1UdDwEB/wQEAwIChDANBgkqhkiG9w0B
-AQsFAAOCAQEADhGmrNYrLv0Bbpk9FPEreyLSJtoksezk4KVVpJOSmCRAGTNtuJ/M
-IT2I2E+aFhT+DF1o37ZFtKrUS4qc1fsB/MFxgS/HlrPw4jFiJXHHxuK6frhdX5N2
-Gpyr1UUNWc5ob3Xu4c54sdB3oX7ELDJU9hRGElEFhJYukf6CmnFPoayQEh+O6ABf
-UcZBXfMLk/Ri+i8BOh/0vnIQkbta9jyWP+z84CBa7aMUKHecKRK9do0nXSuAv4I4
-pqqEyPIrtMZNW8FRRKHkEYyGlYZEEGfFW9JHUx9pQRfa7gFz7tlA344XKf9f3+HR
-YaZ3zwoOQNRVXEQ7ea8ZakOd24G5ZR3jDg==
------END CERTIFICATE-----`
+let signingPub;
+//Get auth0 public key to validate signature
+axios.get(`https://${process.env.AUTH0_DOMAIN_NAME}/.well-known/jwks.json`).then(res => {
+    signingPub = res.data.keys[0].x5c[0];
+});
 
 /**
  * 
@@ -39,6 +25,7 @@ YaZ3zwoOQNRVXEQ7ea8ZakOd24G5ZR3jDg==
  * @returns -1 if no cookie, false (0) if no auth, true (1) if auth
  */
 function authenticate(socket) {
+    console.log(signingPub);
     if (OFFLINE_MODE) return true;
 
     const cookie = socket.handshake.headers.cookie;
@@ -50,8 +37,10 @@ function authenticate(socket) {
                 const find = split.find(part => part.trim().startsWith("auth._token.auth0"));
                 if (find != undefined) {
                     const rel = find.split("=");
+                    console.log(rel[1])
                     
                     const res = jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
+                    console.log(res);
                     return res.iss === process.env.AUTH0_DOMAIN_NAME
                     //If we made it here, the token is valid
                     //(jwt produces errors if invalid)
@@ -60,7 +49,7 @@ function authenticate(socket) {
         }
         return -1;
     } catch(e) {
-        return -1;
+        return false;
     }
 }
 
