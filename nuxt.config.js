@@ -56,7 +56,7 @@ export default {
     },
     sockets: [{
       name: "main",
-      url: process.env.NODE_ENV === "production" ? "https://showcase.g33.beamacdonald.ca" : `http://localhost:${process.env.PORT ?? 3000}`
+      url: process.env.ENV === "production" ? "https://showcase.g33.beamacdonald.ca" : `http://localhost:${process.env.PORT ?? 3000}`
     }]
   },
 
