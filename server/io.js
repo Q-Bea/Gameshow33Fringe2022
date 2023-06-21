@@ -16,7 +16,7 @@ db.awaitConnect();
 let signingPub;
 //Get auth0 public key to validate signature
 axios.get(`https://${process.env.AUTH0_DOMAIN_NAME}/.well-known/jwks.json`).then(res => {
-    signingPub = res.data.keys[0].x5c[0];
+    signingPub = "-----BEGIN CERTIFICATE-----\n" + res.data.keys[0].x5c[0] + "\n-----END CERTIFICATE-----";
 });
 
 /**
@@ -25,7 +25,6 @@ axios.get(`https://${process.env.AUTH0_DOMAIN_NAME}/.well-known/jwks.json`).then
  * @returns -1 if no cookie, false (0) if no auth, true (1) if auth
  */
 function authenticate(socket) {
-    console.log(signingPub);
     if (OFFLINE_MODE) return true;
 
     const cookie = socket.handshake.headers.cookie;
@@ -37,11 +36,9 @@ function authenticate(socket) {
                 const find = split.find(part => part.trim().startsWith("auth._token.auth0"));
                 if (find != undefined) {
                     const rel = find.split("=");
-                    console.log(rel[1])
                     
-                    const res = jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
-                    console.log(res);
-                    return res.iss === process.env.AUTH0_DOMAIN_NAME
+                    jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
+                    return true;
                     //If we made it here, the token is valid
                     //(jwt produces errors if invalid)
                 }
