@@ -9,29 +9,21 @@ const OFFLINE_MODE = false;
 
 import jwt from "jsonwebtoken";
 import MongoInstance from "./mongo";
+import axios from "axios"
 const db = new MongoInstance();
 db.awaitConnect();
 
-const signingPub = `-----BEGIN CERTIFICATE-----
-MIIDDTCCAfWgAwIBAgIJQTkfWiJ+ANFEMA0GCSqGSIb3DQEBCwUAMCQxIjAgBgNV
-BAMTGXF1YW50dW0tYXV0aC51cy5hdXRoMC5jb20wHhcNMjIwNzA0MDUyMDA0WhcN
-MzYwMzEyMDUyMDA0WjAkMSIwIAYDVQQDExlxdWFudHVtLWF1dGgudXMuYXV0aDAu
-Y29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn3xdCxWFPH3ur2vL
-CuRvDDjdBBvfyBWc+A10DwgwPpy7THdWGAOW0i/W9VWmk+7Iq1qtovzw+tD7O/Ed
-UzMLL7NzM4h1S1xRpyHxJIDIBwvyVNy4TIsrLswZyYonDhCZDUI9pntmIx1EZeCF
-8i66fLy+Tq2FRY7C6tm0HFfktfPpe2j8u44FLOM36r9yBMZGtb9BsypAP0pRtLM3
-LfUkEyhCF6cBYS3f0Uhab7MfPscGgul+nSfrUrAyTt5Mh7RnHY2P6DmHB8LtzTwD
-39jv6vDaLi34tmGLXa1SvsIdYeDkHdRqnEjWkHrRbK2/i3lAFKazNPl+TJPvrM0b
-60blNQIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBSDAJ6mg4iP
-+0NiK4z1jC88rAafQjAOBgNVHQ8BAf8EBAMCAoQwDQYJKoZIhvcNAQELBQADggEB
-AFK8Ki1FfQMMNMNtOK3vh2aCNdiGAPrz6+WpzsFJV9x2GUQaEz2VpG3tt+FQsqFR
-BvcxUrQ6/enMmaslwBjkQ4Z8K9QChm2vnj+fhWRam5184KuNq7vX4ZEAEqhOWudB
-Dw4LXSdHn0J2H4H2CTobt6eye3i46UNvGNVpvD8jiypzarBjzTh8ij9fxSYcEIq9
-X6O9hoo1jqhBzZOyOJqJsyhdKgln+US89GWOze59AL5owsKh9GZIwqdYJRk/xdfY
-qVurtuxG/HRoSHlq5etHqOD/tskWk8wWD5Cc+gJK4r9oZV5jUhVE1YHJB1f+IFg5
-5uP5223RPkss5H7edWZOuAA=
------END CERTIFICATE-----`
+let signingPub;
+//Get auth0 public key to validate signature
+axios.get(`https://${process.env.AUTH0_DOMAIN_NAME}/.well-known/jwks.json`).then(res => {
+    signingPub = "-----BEGIN CERTIFICATE-----\n" + res.data.keys[0].x5c[0] + "\n-----END CERTIFICATE-----";
+});
 
+/**
+ * 
+ * @param {*} socket 
+ * @returns -1 if no cookie, false (0) if no auth, true (1) if auth
+ */
 function authenticate(socket) {
     if (OFFLINE_MODE) return true;
 
@@ -42,20 +34,36 @@ function authenticate(socket) {
     
             if (split.length > 0) {
                 const find = split.find(part => part.trim().startsWith("auth._token.auth0"));
-    
-                if (find) {
+                if (find != undefined) {
                     const rel = find.split("=");
                     
-                    const res = jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
-                    return res.iss === "https://quantum-auth.us.auth0.com/"
+                    jwt.verify(rel[1].substring(9), signingPub, {algorithm: "RS256"})
+                    return true;
                     //If we made it here, the token is valid
                     //(jwt produces errors if invalid)
                 }
             }
         }
-        return false;
+        return -1;
     } catch(e) {
         return false;
+    }
+}
+
+function authCheck(socket) {
+    const authRes = authenticate(socket)
+    switch (authRes) {
+        case -1: 
+            return false
+        case 0: 
+        case false:
+            socket.disconnect(true);
+            return false;
+        case 1: 
+        case true:
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -63,10 +71,7 @@ export default function Svc(socket, io) {
     return Object.freeze({
         //----DISPLAY DATA SOCKET----
         async setActiveDisplays(payload) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            };
+            if (!authCheck(socket)) return;
 
             if (!payload) return;
 
@@ -109,10 +114,7 @@ export default function Svc(socket, io) {
         },
 
         async setValidGames(payload) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            };
+            if (!authCheck(socket)) return;
 
             try {
                 if (!payload) return;
@@ -150,10 +152,7 @@ export default function Svc(socket, io) {
         },
 
         async setGamesInUse(gameObj) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            };
+            if (!authCheck(socket)) return;
 
             if (gameObj == undefined || typeof gameObj !== "object") return;
 
@@ -181,10 +180,7 @@ export default function Svc(socket, io) {
              *  }
              */
 
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            }
+            if (!authCheck(socket)) return;
 
             if (Array.isArray(payload.teams)) {
                 const res = await db.teamDataFunctions.setTeams(payload.teams, payload.resetScores);
@@ -194,10 +190,7 @@ export default function Svc(socket, io) {
         },
 
         async resetPlayerPoints() {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            };
+            if (!authCheck(socket)) return;
 
             const res = await db.teamDataFunctions.reset(true);
 
@@ -205,10 +198,7 @@ export default function Svc(socket, io) {
         },
 
         async addPlayerPoints(payload) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            };
+            if (!authCheck(socket)) return;
 
             if (payload && 
                 payload.points && 
@@ -247,10 +237,7 @@ export default function Svc(socket, io) {
 
         //----WHEEL SOCKETS----
         async setWheelOptions(options) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            }
+            if (!authCheck(socket)) return;
 
             if (Array.isArray(options)) {
                 const res = await db.wheelDataFunctions.setWheelOptions(options);
@@ -285,10 +272,7 @@ export default function Svc(socket, io) {
         */
         async displayEvent(payload) {
             try {
-                if (!authenticate(socket)) {
-                    socket.disconnect(true);
-                    return
-                };
+                if (!authCheck(socket)) return;
     
                 if (typeof payload === "object") {
                     if (payload.eventName == undefined) return;
@@ -330,10 +314,7 @@ export default function Svc(socket, io) {
 
         //----SET KEYSTONE SOCKETS----
         async setKeystone(value) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return;
-            }
+            if (!authCheck(socket)) return;
 
             if (typeof value == "number") {
                 const res = await db.keystoneDataFunctions.setKeystone(value);
@@ -355,10 +336,7 @@ export default function Svc(socket, io) {
 
         //----START CONNECTION QUERY SOCKETS----
         async queryRoomConnections(roomName) {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return
-            };
+            if (!authCheck(socket)) return;
 
             if (typeof roomName !== "string") return undefined;
 
@@ -380,10 +358,7 @@ export default function Svc(socket, io) {
 
         //----START TIMER PAGE SOCKETS----
         flashClock() {
-            if (!authenticate(socket)) {
-                socket.disconnect(true);
-                return
-            };
+            if (!authCheck(socket)) return;
 
             io.emit("flashClock");
         }

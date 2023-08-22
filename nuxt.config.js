@@ -51,12 +51,12 @@ export default {
     server: {
       cors: {
         credentials: true,
-        origin: ["http://localhost:3000", "https://gameshow33.beamacdonald.ca"]
+        origin: [`http://localhost:3000${process.env.PORT ?? 3000}`, "https://showcase.g33.beamacdonald.ca"]
       }
     },
     sockets: [{
       name: "main",
-      url: process.env.NODE_ENV === "production" ? "https://gameshow33.beamacdonald.ca" : "http://localhost:3000"
+      url: process.env.ENV === "production" ? "https://showcase.g33.beamacdonald.ca" : `http://localhost:${process.env.PORT ?? 3000}`
     }]
   },
 
@@ -67,7 +67,8 @@ export default {
     strategies: {
       auth0: {
         domain: process.env.AUTH0_DOMAIN_NAME,
-        clientId: process.env.AUTH0_CLIENT_ID
+        clientId: process.env.AUTH0_CLIENT_ID,
+        audience: `https://${process.env.AUTH0_DOMAIN_NAME}/api/v2/`
       }
     }
   },
@@ -110,5 +111,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    postcss: null
   }
 }
