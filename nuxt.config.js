@@ -51,12 +51,12 @@ export default {
     server: {
       cors: {
         credentials: true,
-        origin: [`http://localhost:3000${process.env.PORT ?? 3000}`, "https://showcase.g33.beamacdonald.ca"]
+        origin: [`http://localhost:3000${process.env.PORT ?? 3000}`, process.env.SERVER_FQDN]
       }
     },
     sockets: [{
       name: "main",
-      url: process.env.ENV === "production" ? "https://showcase.g33.beamacdonald.ca" : `http://localhost:${process.env.PORT ?? 3000}`
+      url: process.env.ENV === "production" ? process.env.SERVER_FQDN : `http://localhost:${process.env.PORT ?? 3000}`
     }]
   },
 
