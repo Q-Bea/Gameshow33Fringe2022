@@ -32,6 +32,8 @@ COPY --from=build /app/nuxt.config.js ./nuxt.config.js
 COPY --from=build /app/node_modules/ ./node_modules/
 COPY --from=build /app/server-middleware/ ./server-middleware/
 COPY --from=build /app/server/ ./server/
+COPY --from=build /app/static/ ./static/
+
 
 # Change the port and host
 ENV PORT=80
