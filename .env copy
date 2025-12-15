@@ -1,0 +1,9 @@
+MONGO_USERNAME=FRINGE_SERVER
+MONGO_PASSWORD=tTJGF5n7SiEA8myy
+
+AUTH0_DOMAIN_NAME=showcase-g33demo.us.auth0.com
+AUTH0_CLIENT_ID=8FF1R6kRw3KTpGl5STEU3DOwrgCfMl22
+
+PORT=10001
+ENV=development
+SERVER_FQDN=https://g33.showcase.beamacdonald.ca
