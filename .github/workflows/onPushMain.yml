@@ -32,6 +32,7 @@ jobs:
       # Make .env for build
       - name: Create .env file
         run: |
+          echo "ENV=production" >> .env
           echo "AUTH0_DOMAIN_NAME=${{ secrets.AUTH0_DOMAIN_NAME }}" > .env
           echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> .env
           echo "SERVER_FQDN=${{ secrets.SERVER_FQDN }}" >> .env
