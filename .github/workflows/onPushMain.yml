@@ -24,6 +24,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Make .env for build
+      - name: Create .env file
+        run: |
+          echo "AUTH0_DOMAIN_NAME=${{ secrets.AUTH0_DOMAIN_NAME }}" > .env
+          echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> .env
+          echo "SERVER_FQDN=${{ secrets.SERVER_FQDN }}" >> .env
+
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:

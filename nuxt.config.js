@@ -51,7 +51,7 @@ export default {
     server: {
       cors: {
         credentials: true,
-        origin: [`http://localhost:3000${process.env.PORT ?? 3000}`, process.env.SERVER_FQDN]
+        origin: [`http://localhost:${process.env.PORT ?? 3000}`, process.env.SERVER_FQDN]
       }
     },
     sockets: [{

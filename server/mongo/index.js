@@ -36,7 +36,7 @@ export default class MongoInstance {
     displayEventFunctions
 
     constructor() {
-        const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@gameshow33finge2022.ao3wxh7.mongodb.net/?retryWrites=true&w=majority`;
+        const uri = `${process.env.MONGO_CONNECTION_STRING}`;
 
         this.mongoClient = new MongoClient(uri)
     }

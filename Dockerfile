@@ -7,6 +7,7 @@ RUN corepack enable
 
 # Copy package.json and your lockfile, here we add pnpm-lock.yaml for illustration
 COPY package.json package-lock.json ./
+COPY .env /app/.env
 
 # Install dependencies
 RUN npm ci
@@ -30,11 +31,12 @@ COPY --from=build /app/nuxt.config.js ./nuxt.config.js
 
 COPY --from=build /app/node_modules/ ./node_modules/
 COPY --from=build /app/server-middleware/ ./server-middleware/
+COPY --from=build /app/server/ ./server/
 
 # Change the port and host
-ENV PORT=80
+ENV PORT=82
 ENV HOST=0.0.0.0
 
-EXPOSE 80
+EXPOSE 82
 
-CMD ["printenv", ">", ".env", "&&", "npm", "run", "start"]
+CMD ["npm", "run", "start"]
