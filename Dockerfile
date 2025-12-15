@@ -34,9 +34,9 @@ COPY --from=build /app/server-middleware/ ./server-middleware/
 COPY --from=build /app/server/ ./server/
 
 # Change the port and host
-ENV PORT=82
+ENV PORT=80
 ENV HOST=0.0.0.0
 
-EXPOSE 82
+EXPOSE 80
 
 CMD ["npm", "run", "start"]
